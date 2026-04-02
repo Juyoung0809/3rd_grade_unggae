@@ -48,6 +48,10 @@ public class Course {
     @Builder.Default
     private BigDecimal price = BigDecimal.ZERO;
 
+    @Column(name = "lecture_count", nullable = false)
+    @Builder.Default
+    private int lectureCount = 1;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -61,6 +65,20 @@ public class Course {
     }
 
     public enum Status {
-        PENDING, PUBLISHED, REJECTED
+        PENDING, PUBLISHED, REJECTED, DELETED
+    }
+
+    public void update(String title, String description, Category category,
+                       java.math.BigDecimal price, String thumbnail, int lectureCount) {
+        this.title = title;
+        this.description = description;
+        this.category = category;
+        this.price = price;
+        this.thumbnail = thumbnail;
+        this.lectureCount = lectureCount;
+    }
+
+    public void softDelete() {
+        this.status = Status.DELETED;
     }
 }

@@ -17,6 +17,8 @@ public class EnrollmentResponse {
     private final String courseCategory;
     private final BigDecimal coursePrice;
     private final String instructorName;
+    private final int completedLectureCount;
+    private final int lectureCount;
     private final int progressPercent;
 
     private EnrollmentResponse(Enrollment enrollment) {
@@ -28,6 +30,8 @@ public class EnrollmentResponse {
         this.courseCategory = enrollment.getCourse().getCategory().name();
         this.coursePrice = enrollment.getCourse().getPrice();
         this.instructorName = enrollment.getCourse().getInstructor().getName();
+        this.completedLectureCount = enrollment.getCompletedLectureCount();
+        this.lectureCount = enrollment.getCourse().getLectureCount();
         this.progressPercent = enrollment.getProgressPercent();
     }
 

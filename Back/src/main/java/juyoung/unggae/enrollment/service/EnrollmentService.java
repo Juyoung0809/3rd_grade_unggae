@@ -6,7 +6,6 @@ import juyoung.unggae.course.entity.Course;
 import juyoung.unggae.course.repository.CourseRepository;
 import juyoung.unggae.enrollment.dto.EnrollmentRequest;
 import juyoung.unggae.enrollment.dto.EnrollmentResponse;
-import juyoung.unggae.enrollment.dto.ProgressRequest;
 import juyoung.unggae.enrollment.entity.Enrollment;
 import juyoung.unggae.enrollment.repository.EnrollmentRepository;
 import juyoung.unggae.user.entity.User;
@@ -63,10 +62,17 @@ public class EnrollmentService {
         return enrollmentRepository.existsByUserIdAndCourseId(userId, courseId);
     }
 
-    public EnrollmentResponse updateProgress(Long userId, Long courseId, ProgressRequest request) {
+    @Transactional(readOnly = true)
+    public EnrollmentResponse getEnrollmentDetail(Long userId, Long courseId) {
         Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_ENROLLED));
-        enrollment.updateProgress(request.getProgressPercent());
+        return EnrollmentResponse.from(enrollment);
+    }
+
+    public EnrollmentResponse completeLecture(Long userId, Long courseId) {
+        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_ENROLLED));
+        enrollment.completeLecture();
         return EnrollmentResponse.from(enrollment);
     }
 }

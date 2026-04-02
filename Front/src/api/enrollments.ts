@@ -6,6 +6,8 @@ export interface Enrollment {
   courseTitle: string
   thumbnailUrl: string | null
   instructorName: string
+  completedLectureCount: number
+  lectureCount: number
   progressPercent: number
   enrolledAt: string
 }
@@ -19,5 +21,8 @@ export const getMyEnrollments = (): Promise<Enrollment[]> =>
 export const checkEnrollment = (courseId: number): Promise<boolean> =>
   api.get(`/api/enrollments/${courseId}/status`)
 
-export const updateProgress = (courseId: number, progressPercent: number): Promise<Enrollment> =>
-  api.patch(`/api/enrollments/${courseId}/progress`, { progressPercent })
+export const getEnrollmentDetail = (courseId: number): Promise<Enrollment> =>
+  api.get(`/api/enrollments/${courseId}/detail`)
+
+export const completeLecture = (courseId: number): Promise<Enrollment> =>
+  api.post(`/api/enrollments/${courseId}/complete-lecture`)

@@ -1,7 +1,6 @@
-package juyoung.unggae.rating.entity;
+package juyoung.unggae.question.entity;
 
 import jakarta.persistence.*;
-import juyoung.unggae.course.entity.Course;
 import juyoung.unggae.user.entity.User;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,34 +10,31 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "ratings",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "course_id"})
-)
+@Table(name = "answers")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class Rating {
+public class Answer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "question_id", nullable = false)
+    private Question question;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
 
-    @Column(nullable = false)
-    private int score; // 1~5
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
 
-    @Column(columnDefinition = "TEXT")
-    private String comment;
+    @Column(name = "is_instructor_answer", nullable = false)
+    private boolean instructorAnswer;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -48,8 +44,7 @@ public class Rating {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public void update(int score, String comment) {
-        this.score = score;
-        this.comment = comment;
+    public void update(String content) {
+        this.content = content;
     }
 }

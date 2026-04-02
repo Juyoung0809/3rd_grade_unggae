@@ -7,6 +7,7 @@ import juyoung.unggae.course.repository.CourseRepository;
 import juyoung.unggae.enrollment.repository.EnrollmentRepository;
 import juyoung.unggae.rating.dto.RatingRequest;
 import juyoung.unggae.rating.dto.RatingResponse;
+import juyoung.unggae.rating.dto.RatingUpdateRequest;
 import juyoung.unggae.rating.entity.Rating;
 import juyoung.unggae.rating.repository.RatingRepository;
 import juyoung.unggae.user.entity.User;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,5 +61,23 @@ public class RatingService {
                 .stream()
                 .map(RatingResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<RatingResponse> getMyRating(Long userId, Long courseId) {
+        return ratingRepository.findByUserIdAndCourseId(userId, courseId)
+                .map(RatingResponse::from);
+    }
+
+    public RatingResponse updateRating(Long userId, Long ratingId, RatingUpdateRequest request) {
+        Rating rating = ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RATING_NOT_FOUND));
+
+        if (!rating.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.RATING_FORBIDDEN);
+        }
+
+        rating.update(request.getScore(), request.getComment());
+        return RatingResponse.from(rating);
     }
 }

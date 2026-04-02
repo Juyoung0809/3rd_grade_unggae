@@ -71,6 +71,14 @@ export default function CourseListPage() {
               >
                 내 강의
               </button>
+              {user.role === 'INSTRUCTOR' && (
+                <button
+                  onClick={() => navigate('/instructor/courses')}
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  강의 관리
+                </button>
+              )}
               <span className="text-sm text-gray-400">{user.name}</span>
               <button
                 onClick={handleLogout}

@@ -39,12 +39,19 @@ public class Enrollment {
     @Builder.Default
     private Status status = Status.ACTIVE;
 
+    @Column(name = "completed_lecture_count", nullable = false)
+    @Builder.Default
+    private int completedLectureCount = 0;
+
     @Column(name = "progress_percent", nullable = false)
     @Builder.Default
     private int progressPercent = 0;
 
-    public void updateProgress(int progressPercent) {
-        this.progressPercent = Math.max(0, Math.min(100, progressPercent));
+    public void completeLecture() {
+        int total = this.course.getLectureCount();
+        if (total <= 0) return;
+        this.completedLectureCount = Math.min(this.completedLectureCount + 1, total);
+        this.progressPercent = Math.round(this.completedLectureCount * 100.0f / total);
     }
 
     public enum Status {

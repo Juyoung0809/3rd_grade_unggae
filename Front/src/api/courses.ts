@@ -8,6 +8,7 @@ export interface Course {
   category: string
   thumbnailUrl: string | null
   averageRating: number
+  lectureCount: number
   status: string
   instructor: {
     id: number
