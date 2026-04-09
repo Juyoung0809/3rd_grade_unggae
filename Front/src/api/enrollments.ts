@@ -1,5 +1,16 @@
 import api from './axios'
 
+export interface PaymentHistory {
+  enrollmentId: number
+  courseId: number
+  courseTitle: string
+  thumbnailUrl: string | null
+  courseCategory: string
+  instructorName: string
+  paidPrice: number
+  paidAt: string
+}
+
 export interface Enrollment {
   id: number
   courseId: number
@@ -26,3 +37,6 @@ export const getEnrollmentDetail = (courseId: number): Promise<Enrollment> =>
 
 export const completeLecture = (courseId: number): Promise<Enrollment> =>
   api.post(`/api/enrollments/${courseId}/complete-lecture`)
+
+export const getMyPayments = (): Promise<PaymentHistory[]> =>
+  api.get('/api/enrollments/payments')

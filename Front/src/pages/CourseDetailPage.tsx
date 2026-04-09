@@ -15,6 +15,11 @@ import {
 } from '../api/questions'
 import { useAuth } from '../store/AuthContext'
 
+const LECTURES = [
+  { title: '강의 1: 프리미어 프로 편집 기초', image: '/image/엄.png' },
+  { title: '강의 2: 색보정 기초 (DaVinci Resolve)', image: '/image/엄2.png' },
+]
+
 export default function CourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>()
   const navigate = useNavigate()
@@ -28,6 +33,8 @@ export default function CourseDetailPage() {
   const [enrollLoading, setEnrollLoading] = useState(false)
   const [lectureLoading, setLectureLoading] = useState(false)
   const [error, setError] = useState('')
+  const [activeLectureIndex, setActiveLectureIndex] = useState<number | null>(null)
+  const [completedLectureIndices, setCompletedLectureIndices] = useState<Set<number>>(new Set())
 
   // Ratings
   const [ratings, setRatings] = useState<Rating[]>([])
@@ -156,12 +163,14 @@ export default function CourseDetailPage() {
     }
   }
 
-  async function handleCompleteLecture() {
+  async function handleCompleteLecture(index: number) {
+    if (completedLectureIndices.has(index)) return
     setLectureLoading(true)
     try {
       const updated = await completeLecture(id)
       setCompletedLectureCount(updated.completedLectureCount)
       setProgressPercent(updated.progressPercent)
+      setCompletedLectureIndices(prev => new Set([...prev, index]))
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
       alert(msg ?? '강의 완료 처리에 실패했습니다.')
@@ -316,15 +325,11 @@ export default function CourseDetailPage() {
         </div>
 
         {/* Price & Enroll */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-center justify-between">
-          <span className="text-2xl font-bold text-gray-900">
-            {course.price === 0 ? '무료' : `${Number(course.price).toLocaleString()}원`}
-          </span>
-          {enrolled ? (
-            <button disabled className="px-6 py-3 bg-gray-200 text-gray-500 text-sm font-semibold rounded-xl cursor-not-allowed">
-              수강 중
-            </button>
-          ) : (
+        {!enrolled && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-center justify-between">
+            <span className="text-2xl font-bold text-gray-900">
+              {course.price === 0 ? '무료' : `${Number(course.price).toLocaleString()}원`}
+            </span>
             <button
               onClick={handleEnroll}
               disabled={enrollLoading}
@@ -332,8 +337,8 @@ export default function CourseDetailPage() {
             >
               {enrollLoading ? '처리 중...' : '수강 신청'}
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Progress (수강 중일 때만) */}
         {enrolled && (
@@ -353,19 +358,38 @@ export default function CourseDetailPage() {
                 />
               </div>
             </div>
-            <button
-              onClick={handleCompleteLecture}
-              disabled={lectureLoading || completedLectureCount >= course.lectureCount}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors"
-            >
-              {completedLectureCount >= course.lectureCount
-                ? '모든 강의 완료'
-                : lectureLoading
-                ? '처리 중...'
-                : '강의 완료'}
-            </button>
           </div>
         )}
+
+        {/* Lecture List */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+          <h2 className="text-base font-semibold text-gray-900">강의 목록</h2>
+          <div className="space-y-3">
+            {LECTURES.map((lecture, index) => (
+              <div
+                key={index}
+                onClick={() => setActiveLectureIndex(index)}
+                className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50 cursor-pointer transition-colors"
+              >
+                <img
+                  src={lecture.image}
+                  alt={lecture.title}
+                  className="w-24 h-14 object-cover rounded-lg bg-gray-100"
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">{lecture.title}</p>
+                </div>
+                {enrolled && completedLectureIndices.has(index) ? (
+                  <span className="text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full shrink-0">완료</span>
+                ) : (
+                  <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full shrink-0">
+                    {enrolled ? '수강하기' : '미리보기'}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Rating Section */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6">
@@ -693,6 +717,51 @@ export default function CourseDetailPage() {
           )}
         </div>
       </main>
+
+      {/* Lecture Viewer Modal */}
+      {activeLectureIndex !== null && (
+        <div
+          className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+          onClick={() => setActiveLectureIndex(null)}
+        >
+          <div
+            className="bg-white rounded-2xl overflow-hidden max-w-2xl w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900">
+                {LECTURES[activeLectureIndex].title}
+              </h3>
+              <button
+                onClick={() => setActiveLectureIndex(null)}
+                className="text-gray-400 hover:text-gray-700 text-lg leading-none"
+              >
+                ✕
+              </button>
+            </div>
+            <img
+              src={LECTURES[activeLectureIndex].image}
+              alt={LECTURES[activeLectureIndex].title}
+              className="w-full"
+            />
+            <div className="px-5 py-4 flex justify-end">
+              {enrolled && (
+                completedLectureIndices.has(activeLectureIndex) ? (
+                  <span className="text-sm text-gray-500 font-medium">완료된 강의입니다</span>
+                ) : (
+                  <button
+                    onClick={() => handleCompleteLecture(activeLectureIndex)}
+                    disabled={lectureLoading}
+                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
+                  >
+                    {lectureLoading ? '처리 중...' : '강의 완료'}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

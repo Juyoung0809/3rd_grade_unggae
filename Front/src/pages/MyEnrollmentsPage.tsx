@@ -36,8 +36,14 @@ export default function MyEnrollmentsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Nav */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <span className="font-bold text-gray-900 text-lg">EditHub</span>
+        <span className="font-bold text-gray-900 text-lg cursor-pointer hover:text-blue-600 transition-colors" onClick={() => navigate('/courses')}>EditHub</span>
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/my/payments')}
+            className="text-sm text-gray-500 hover:text-gray-800"
+          >
+            결제 내역
+          </button>
           <span className="text-sm text-gray-500">{user?.name}</span>
           <button
             onClick={handleLogout}

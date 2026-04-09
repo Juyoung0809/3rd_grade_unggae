@@ -5,6 +5,7 @@ import juyoung.unggae.course.entity.Course;
 import juyoung.unggae.user.entity.User;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -38,6 +39,10 @@ public class Enrollment {
     @Column(nullable = false)
     @Builder.Default
     private Status status = Status.ACTIVE;
+
+    @Column(name = "paid_price", nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal paidPrice = BigDecimal.ZERO;
 
     @Column(name = "completed_lecture_count", nullable = false)
     @Builder.Default

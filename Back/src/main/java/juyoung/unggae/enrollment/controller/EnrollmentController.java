@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import juyoung.unggae.common.response.ApiResponse;
 import juyoung.unggae.enrollment.dto.EnrollmentRequest;
 import juyoung.unggae.enrollment.dto.EnrollmentResponse;
+import juyoung.unggae.enrollment.dto.PaymentResponse;
 import juyoung.unggae.enrollment.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,14 @@ public class EnrollmentController {
     public ResponseEntity<ApiResponse<List<EnrollmentResponse>>> getMyEnrollments(
             @AuthenticationPrincipal Long userId) {
         List<EnrollmentResponse> responses = enrollmentService.getMyEnrollments(userId);
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+
+    @Operation(summary = "결제 내역 조회", description = "로그인한 사용자의 전체 결제(수강 신청) 내역을 최신순으로 반환합니다.")
+    @GetMapping("/payments")
+    public ResponseEntity<ApiResponse<List<PaymentResponse>>> getMyPayments(
+            @AuthenticationPrincipal Long userId) {
+        List<PaymentResponse> responses = enrollmentService.getMyPayments(userId);
         return ResponseEntity.ok(ApiResponse.success(responses));
     }
 

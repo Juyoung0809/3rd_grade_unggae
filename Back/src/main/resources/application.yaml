@@ -2,12 +2,14 @@ server:
   port: 8080
 
 spring:
+  config:
+    import: optional:file:../.env[.properties]
   application:
     name: unggae
   datasource:
-    url: jdbc:mysql://localhost:3306/unggae?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password: "0809"
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -19,7 +21,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 jwt:
-  secret: unggae-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256-algorithm
+  secret: ${JWT_SECRET}
   access-token-expiration: 1800000    # 30분 (ms)
   refresh-token-expiration: 604800000 # 7일 (ms)
 

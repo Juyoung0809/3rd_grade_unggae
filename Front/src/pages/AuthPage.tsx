@@ -13,7 +13,7 @@ export default function AuthPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = (location.state as { from?: string })?.from ?? '/my/enrollments'
+  const from = (location.state as { from?: string })?.from ?? '/courses'
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('')
@@ -63,7 +63,15 @@ export default function AuthPage() {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-md overflow-hidden">
         {/* Header */}
         <div className="px-8 pt-8 pb-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">EditHub</h1>
+          <div className="flex items-center justify-between mb-1">
+            <h1 className="text-2xl font-bold text-gray-900">EditHub</h1>
+            <button
+              onClick={() => navigate('/courses')}
+              className="text-sm text-gray-500 hover:text-gray-800 border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+            >
+              홈으로
+            </button>
+          </div>
           <p className="text-sm text-gray-500">영상편집 강의 플랫폼</p>
         </div>
 

@@ -6,6 +6,7 @@ import CourseListPage from './pages/CourseListPage'
 import CourseDetailPage from './pages/CourseDetailPage'
 import MyEnrollmentsPage from './pages/MyEnrollmentsPage'
 import InstructorCoursesPage from './pages/InstructorCoursesPage'
+import PaymentHistoryPage from './pages/PaymentHistoryPage'
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { accessToken } = useAuth()
@@ -25,6 +26,14 @@ export default function App() {
           element={
             <PrivateRoute>
               <MyEnrollmentsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my/payments"
+          element={
+            <PrivateRoute>
+              <PaymentHistoryPage />
             </PrivateRoute>
           }
         />

@@ -6,6 +6,7 @@ import juyoung.unggae.course.entity.Course;
 import juyoung.unggae.course.repository.CourseRepository;
 import juyoung.unggae.enrollment.dto.EnrollmentRequest;
 import juyoung.unggae.enrollment.dto.EnrollmentResponse;
+import juyoung.unggae.enrollment.dto.PaymentResponse;
 import juyoung.unggae.enrollment.entity.Enrollment;
 import juyoung.unggae.enrollment.repository.EnrollmentRepository;
 import juyoung.unggae.user.entity.User;
@@ -44,6 +45,7 @@ public class EnrollmentService {
         Enrollment enrollment = Enrollment.builder()
                 .user(user)
                 .course(course)
+                .paidPrice(course.getPrice())
                 .build();
 
         return EnrollmentResponse.from(enrollmentRepository.save(enrollment));
@@ -67,6 +69,14 @@ public class EnrollmentService {
         Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_ENROLLED));
         return EnrollmentResponse.from(enrollment);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PaymentResponse> getMyPayments(Long userId) {
+        return enrollmentRepository.findAllEnrollmentsByUserIdOrderByEnrolledAtDesc(userId)
+                .stream()
+                .map(PaymentResponse::from)
+                .collect(Collectors.toList());
     }
 
     public EnrollmentResponse completeLecture(Long userId, Long courseId) {
