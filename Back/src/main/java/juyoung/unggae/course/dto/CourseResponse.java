@@ -16,6 +16,7 @@ public class CourseResponse {
     private final String status;
     private final String thumbnailUrl;
     private final double averageRating;
+    private final int lectureCount;
     private final InstructorInfo instructor;
 
     @Getter
@@ -38,9 +39,10 @@ public class CourseResponse {
         this.status = course.getStatus().name();
         this.thumbnailUrl = course.getThumbnail();
         this.averageRating = averageRating;
+        this.lectureCount = course.getLectureCount();
         this.instructor = new InstructorInfo(
                 course.getInstructor().getId(),
-                course.getInstructor().getName()
+                course.getInstructor().getNickname()
         );
     }
 

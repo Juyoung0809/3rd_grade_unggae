@@ -20,6 +20,9 @@ public enum ErrorCode {
     // Course
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "COURSE_NOT_FOUND", "강의를 찾을 수 없습니다."),
     COURSE_NOT_PUBLISHED(HttpStatus.BAD_REQUEST, "COURSE_NOT_PUBLISHED", "신청 가능한 강의가 아닙니다."),
+    COURSE_FORBIDDEN(HttpStatus.FORBIDDEN, "COURSE_FORBIDDEN", "본인의 강의만 수정/삭제할 수 있습니다."),
+    NOT_INSTRUCTOR(HttpStatus.FORBIDDEN, "NOT_INSTRUCTOR", "강사만 이용할 수 있는 기능입니다."),
+    COURSE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "COURSE_ALREADY_DELETED", "이미 삭제된 강의입니다."),
 
     // Enrollment
     ALREADY_ENROLLED(HttpStatus.CONFLICT, "ALREADY_ENROLLED", "이미 신청한 강의입니다."),
@@ -27,6 +30,33 @@ public enum ErrorCode {
 
     // Rating
     RATING_ALREADY_EXISTS(HttpStatus.CONFLICT, "RATING_ALREADY_EXISTS", "이미 평점을 등록했습니다."),
+    RATING_NOT_FOUND(HttpStatus.NOT_FOUND, "RATING_NOT_FOUND", "평점을 찾을 수 없습니다."),
+    RATING_FORBIDDEN(HttpStatus.FORBIDDEN, "RATING_FORBIDDEN", "본인의 평점만 수정할 수 있습니다."),
+
+    // Question
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUESTION_NOT_FOUND", "질문을 찾을 수 없습니다."),
+    QUESTION_FORBIDDEN(HttpStatus.FORBIDDEN, "QUESTION_FORBIDDEN", "본인의 질문만 수정할 수 있습니다."),
+    QUESTION_WRITE_FORBIDDEN(HttpStatus.FORBIDDEN, "QUESTION_WRITE_FORBIDDEN", "수강생만 질문을 작성할 수 있습니다."),
+    ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "ANSWER_NOT_FOUND", "답변을 찾을 수 없습니다."),
+    ANSWER_FORBIDDEN(HttpStatus.FORBIDDEN, "ANSWER_FORBIDDEN", "본인의 답변만 수정할 수 있습니다."),
+    ANSWER_WRITE_FORBIDDEN(HttpStatus.FORBIDDEN, "ANSWER_WRITE_FORBIDDEN", "수강생 또는 강사만 답변을 작성할 수 있습니다."),
+
+    // Enrollment
+    ENROLLMENT_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "ENROLLMENT_NOT_ACTIVE", "수강 중인 강의가 아닙니다."),
+
+    // Section
+    SECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "SECTION_NOT_FOUND", "섹션을 찾을 수 없습니다."),
+    SECTION_FORBIDDEN(HttpStatus.FORBIDDEN, "SECTION_FORBIDDEN", "본인의 강의 섹션만 수정/삭제할 수 있습니다."),
+
+    // Lecture
+    LECTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "LECTURE_NOT_FOUND", "강의 챕터를 찾을 수 없습니다."),
+    LECTURE_FORBIDDEN(HttpStatus.FORBIDDEN, "LECTURE_FORBIDDEN", "본인의 강의 챕터만 수정/삭제할 수 있습니다."),
+
+    // Admin
+    ADMIN_FORBIDDEN(HttpStatus.FORBIDDEN, "ADMIN_FORBIDDEN", "관리자만 이용할 수 있는 기능입니다."),
+
+    // User
+    CURRENT_PASSWORD_WRONG(HttpStatus.BAD_REQUEST, "CURRENT_PASSWORD_WRONG", "현재 비밀번호가 올바르지 않습니다."),
 
     // Common
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "서버 오류가 발생했습니다.");

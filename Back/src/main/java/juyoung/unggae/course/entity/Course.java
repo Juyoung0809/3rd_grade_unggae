@@ -48,6 +48,10 @@ public class Course {
     @Builder.Default
     private BigDecimal price = BigDecimal.ZERO;
 
+    @Column(name = "lecture_count", nullable = false)
+    @Builder.Default
+    private int lectureCount = 1;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -57,10 +61,47 @@ public class Course {
     private LocalDateTime updatedAt;
 
     public enum Category {
-        YOUTUBE, SHORTS, MOTION, COLOR, THUMBNAIL
+        YOUTUBE,          // 유튜브 영상
+        SHORTS,           // 쇼츠 영상
+        POST_PRODUCTION,  // 영상 후반작업
+        ADVERTISEMENT,    // 광고·홍보 영상
+        AI,               // AI 영상
+        EVENT,            // 행사 영상
+        INDUSTRY,         // 업종별 영상
+        MOTION,           // 모션그래픽
+        MUSIC,            // 음악·음원
+        SOUND,            // 기타 음향·음악
+        COLOR,            // 색보정
+        THUMBNAIL,        // 썸네일
+        VLOG              // 브이로그
     }
 
     public enum Status {
-        PENDING, PUBLISHED, REJECTED
+        PENDING, PUBLISHED, REJECTED, DELETED
+    }
+
+    public void update(String title, String description, Category category,
+                       java.math.BigDecimal price, String thumbnail) {
+        this.title = title;
+        this.description = description;
+        this.category = category;
+        this.price = price;
+        this.thumbnail = thumbnail;
+    }
+
+    public void updateLectureCount(int lectureCount) {
+        this.lectureCount = lectureCount;
+    }
+
+    public void approve() {
+        this.status = Status.PUBLISHED;
+    }
+
+    public void reject() {
+        this.status = Status.REJECTED;
+    }
+
+    public void softDelete() {
+        this.status = Status.DELETED;
     }
 }

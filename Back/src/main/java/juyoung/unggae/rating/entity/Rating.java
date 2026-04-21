@@ -5,6 +5,7 @@ import juyoung.unggae.course.entity.Course;
 import juyoung.unggae.user.entity.User;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -42,4 +43,13 @@ public class Rating {
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    public void update(int score, String comment) {
+        this.score = score;
+        this.comment = comment;
+    }
 }

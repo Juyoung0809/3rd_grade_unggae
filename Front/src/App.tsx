@@ -5,6 +5,10 @@ import AuthPage from './pages/AuthPage'
 import CourseListPage from './pages/CourseListPage'
 import CourseDetailPage from './pages/CourseDetailPage'
 import MyEnrollmentsPage from './pages/MyEnrollmentsPage'
+import InstructorCoursesPage from './pages/InstructorCoursesPage'
+import PaymentHistoryPage from './pages/PaymentHistoryPage'
+import AdminPage from './pages/AdminPage'
+import ProfilePage from './pages/ProfilePage'
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { accessToken } = useAuth()
@@ -24,6 +28,38 @@ export default function App() {
           element={
             <PrivateRoute>
               <MyEnrollmentsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my/payments"
+          element={
+            <PrivateRoute>
+              <PaymentHistoryPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/instructor/courses"
+          element={
+            <PrivateRoute>
+              <InstructorCoursesPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <AdminPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <ProfilePage />
             </PrivateRoute>
           }
         />

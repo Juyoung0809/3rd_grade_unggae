@@ -5,6 +5,7 @@ import juyoung.unggae.course.entity.Course;
 import juyoung.unggae.user.entity.User;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -39,12 +40,27 @@ public class Enrollment {
     @Builder.Default
     private Status status = Status.ACTIVE;
 
+    @Column(name = "paid_price", nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal paidPrice = BigDecimal.ZERO;
+
+    @Column(name = "completed_lecture_count", nullable = false)
+    @Builder.Default
+    private int completedLectureCount = 0;
+
     @Column(name = "progress_percent", nullable = false)
     @Builder.Default
     private int progressPercent = 0;
 
-    public void updateProgress(int progressPercent) {
-        this.progressPercent = Math.max(0, Math.min(100, progressPercent));
+    public void cancel() {
+        this.status = Status.CANCELLED;
+    }
+
+    public void updateProgress(int completedCount) {
+        int total = this.course.getLectureCount();
+        if (total <= 0) return;
+        this.completedLectureCount = Math.min(completedCount, total);
+        this.progressPercent = Math.round(this.completedLectureCount * 100.0f / total);
     }
 
     public enum Status {

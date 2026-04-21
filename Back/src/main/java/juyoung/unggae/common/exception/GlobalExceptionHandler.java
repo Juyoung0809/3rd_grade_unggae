@@ -33,6 +33,13 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("VALIDATION_ERROR", message));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity
+                .badRequest()
+                .body(ApiResponse.error("BAD_REQUEST", e.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("Unhandled exception: {}", e.getMessage(), e);
