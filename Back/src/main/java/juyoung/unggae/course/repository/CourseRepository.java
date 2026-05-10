@@ -28,4 +28,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             ORDER BY c.createdAt DESC
             """)
     List<Course> findByInstructorIdExcludingDeleted(@Param("instructorId") Long instructorId);
+
+    @Query("SELECT c FROM Course c JOIN FETCH c.instructor WHERE c.status = :status ORDER BY c.createdAt DESC")
+    List<Course> findByStatus(@Param("status") Course.Status status);
+
+    @Query("SELECT c FROM Course c JOIN FETCH c.instructor ORDER BY c.createdAt DESC")
+    List<Course> findAllWithInstructor();
 }

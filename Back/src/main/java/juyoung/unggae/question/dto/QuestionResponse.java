@@ -27,7 +27,7 @@ public class QuestionResponse {
         this.title = question.getTitle();
         this.content = question.getContent();
         this.authorId = question.getAuthor().getId();
-        this.authorName = question.getAuthor().getName();
+        this.authorName = question.getAuthor().getNickname();
         this.createdAt = question.getCreatedAt();
         this.updatedAt = question.getUpdatedAt();
         this.answers = answers.stream().map(AnswerResponse::from).collect(Collectors.toList());

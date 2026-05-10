@@ -41,6 +41,27 @@ public enum ErrorCode {
     ANSWER_FORBIDDEN(HttpStatus.FORBIDDEN, "ANSWER_FORBIDDEN", "본인의 답변만 수정할 수 있습니다."),
     ANSWER_WRITE_FORBIDDEN(HttpStatus.FORBIDDEN, "ANSWER_WRITE_FORBIDDEN", "수강생 또는 강사만 답변을 작성할 수 있습니다."),
 
+    // Enrollment
+    ENROLLMENT_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "ENROLLMENT_NOT_ACTIVE", "수강 중인 강의가 아닙니다."),
+
+    // Section
+    SECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "SECTION_NOT_FOUND", "섹션을 찾을 수 없습니다."),
+    SECTION_FORBIDDEN(HttpStatus.FORBIDDEN, "SECTION_FORBIDDEN", "본인의 강의 섹션만 수정/삭제할 수 있습니다."),
+
+    // Lecture
+    LECTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "LECTURE_NOT_FOUND", "강의 챕터를 찾을 수 없습니다."),
+    LECTURE_FORBIDDEN(HttpStatus.FORBIDDEN, "LECTURE_FORBIDDEN", "본인의 강의 챕터만 수정/삭제할 수 있습니다."),
+
+    // Admin
+    ADMIN_FORBIDDEN(HttpStatus.FORBIDDEN, "ADMIN_FORBIDDEN", "관리자만 이용할 수 있는 기능입니다."),
+
+    // User
+    CURRENT_PASSWORD_WRONG(HttpStatus.BAD_REQUEST, "CURRENT_PASSWORD_WRONG", "현재 비밀번호가 올바르지 않습니다."),
+
+    // Payment
+    PAYMENT_FAILED(HttpStatus.BAD_REQUEST, "PAYMENT_FAILED", "결제 처리에 실패했습니다."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "PAYMENT_AMOUNT_MISMATCH", "결제 금액이 일치하지 않습니다."),
+
     // Common
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "서버 오류가 발생했습니다.");
 

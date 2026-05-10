@@ -116,4 +116,23 @@ public class QuestionService {
         answer.update(request.getContent());
         return AnswerResponse.from(answer);
     }
+
+    public void deleteQuestion(Long userId, Long questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_NOT_FOUND));
+        if (!question.getAuthor().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.QUESTION_FORBIDDEN);
+        }
+        answerRepository.deleteByQuestionId(questionId);
+        questionRepository.delete(question);
+    }
+
+    public void deleteAnswer(Long userId, Long answerId) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
+        if (!answer.getAuthor().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.ANSWER_FORBIDDEN);
+        }
+        answerRepository.delete(answer);
+    }
 }

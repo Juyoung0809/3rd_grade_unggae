@@ -22,7 +22,7 @@ public class QuestionSummaryResponse {
         this.courseId = question.getCourse().getId();
         this.title = question.getTitle();
         this.authorId = question.getAuthor().getId();
-        this.authorName = question.getAuthor().getName();
+        this.authorName = question.getAuthor().getNickname();
         this.createdAt = question.getCreatedAt();
         this.updatedAt = question.getUpdatedAt();
         this.answerCount = answerCount;

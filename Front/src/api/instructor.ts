@@ -7,17 +7,16 @@ export interface CourseFormData {
   category: string
   price: number
   thumbnail: string
-  lectureCount: number
 }
 
 export const createCourse = (data: CourseFormData): Promise<Course> =>
-  api.post('/api/instructor/courses', data)
+  api.post('/api/courses', data)
 
 export const getInstructorCourses = (): Promise<Course[]> =>
   api.get('/api/instructor/courses')
 
 export const updateCourse = (courseId: number, data: CourseFormData): Promise<Course> =>
-  api.put(`/api/instructor/courses/${courseId}`, data)
+  api.put(`/api/courses/${courseId}`, data)
 
 export const deleteCourse = (courseId: number): Promise<void> =>
-  api.delete(`/api/instructor/courses/${courseId}`)
+  api.delete(`/api/courses/${courseId}`)

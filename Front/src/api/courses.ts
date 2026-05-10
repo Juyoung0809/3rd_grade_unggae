@@ -16,7 +16,7 @@ export interface Course {
   }
 }
 
-export const getCourses = (params?: { category?: string; keyword?: string }): Promise<Course[]> =>
+export const getCourses = (params?: { category?: string; keyword?: string; sort?: string }): Promise<Course[]> =>
   api.get('/api/courses', { params })
 
 export const getCourseDetail = (courseId: number): Promise<Course> =>

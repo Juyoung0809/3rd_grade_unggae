@@ -52,10 +52,14 @@ public class Enrollment {
     @Builder.Default
     private int progressPercent = 0;
 
-    public void completeLecture() {
+    public void cancel() {
+        this.status = Status.CANCELLED;
+    }
+
+    public void updateProgress(int completedCount) {
         int total = this.course.getLectureCount();
         if (total <= 0) return;
-        this.completedLectureCount = Math.min(this.completedLectureCount + 1, total);
+        this.completedLectureCount = Math.min(completedCount, total);
         this.progressPercent = Math.round(this.completedLectureCount * 100.0f / total);
     }
 

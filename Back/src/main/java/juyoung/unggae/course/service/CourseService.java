@@ -33,14 +33,25 @@ public class CourseService {
         return CourseResponse.of(course, avg);
     }
 
-    public List<CourseResponse> getCourses(String category, String keyword) {
+    public List<CourseResponse> getCourses(String category, String keyword, String sort) {
         List<Course> courses = courseRepository.findPublishedCourses(
                 category != null ? category.toUpperCase() : null,
                 keyword
         );
-        return courses.stream()
+        List<CourseResponse> responses = courses.stream()
                 .map(c -> CourseResponse.of(c, ratingRepository.findAverageScoreByCourseId(c.getId())))
                 .collect(Collectors.toList());
+
+        if ("RATING".equalsIgnoreCase(sort)) {
+            responses.sort((a, b) -> Double.compare(b.getAverageRating(), a.getAverageRating()));
+        } else if ("STUDENTS".equalsIgnoreCase(sort)) {
+            responses.sort((a, b) -> Integer.compare(b.getLectureCount(), a.getLectureCount()));
+        }
+        return responses;
+    }
+
+    public List<CourseResponse> getCourses(String category, String keyword) {
+        return getCourses(category, keyword, "LATEST");
     }
 
     @Transactional
@@ -59,7 +70,7 @@ public class CourseService {
                 .category(Course.Category.valueOf(request.getCategory()))
                 .price(request.getPrice())
                 .thumbnail(request.getThumbnail())
-                .lectureCount(request.getLectureCount())
+                .lectureCount(0)
                 .build();
 
         return CourseResponse.of(courseRepository.save(course), 0.0);
@@ -97,8 +108,7 @@ public class CourseService {
                 request.getDescription(),
                 Course.Category.valueOf(request.getCategory()),
                 request.getPrice(),
-                request.getThumbnail(),
-                request.getLectureCount()
+                request.getThumbnail()
         );
 
         double avg = ratingRepository.findAverageScoreByCourseId(courseId);

@@ -50,3 +50,9 @@ export const createAnswer = (questionId: number, content: string): Promise<Answe
 
 export const updateAnswer = (questionId: number, answerId: number, content: string): Promise<AnswerResponse> =>
   api.put(`/api/questions/${questionId}/answers/${answerId}`, { content })
+
+export const deleteQuestion = (questionId: number): Promise<void> =>
+  api.delete(`/api/questions/${questionId}`)
+
+export const deleteAnswer = (questionId: number, answerId: number): Promise<void> =>
+  api.delete(`/api/questions/${questionId}/answers/${answerId}`)

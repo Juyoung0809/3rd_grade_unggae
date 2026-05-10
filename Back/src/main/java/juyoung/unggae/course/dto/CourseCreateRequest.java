@@ -1,7 +1,6 @@
 package juyoung.unggae.course.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -21,7 +20,7 @@ public class CourseCreateRequest {
     @Schema(description = "강의 설명", example = "영상편집 입문자를 위한 프리미어 프로 기초 강의입니다.")
     private String description;
 
-    @Schema(description = "카테고리 (YOUTUBE | SHORTS | MOTION | COLOR | THUMBNAIL)", example = "YOUTUBE")
+    @Schema(description = "카테고리 (YOUTUBE | SHORTS | POST_PRODUCTION | ADVERTISEMENT | AI | EVENT | INDUSTRY | MOTION | MUSIC | SOUND | COLOR | THUMBNAIL | VLOG)", example = "YOUTUBE")
     @NotBlank(message = "카테고리를 선택해주세요.")
     private String category;
 
@@ -31,8 +30,4 @@ public class CourseCreateRequest {
 
     @Schema(description = "썸네일 이미지 URL", example = "https://example.com/thumbnail.jpg")
     private String thumbnail;
-
-    @Schema(description = "강의 영상 수 (1 이상)", example = "10")
-    @Min(value = 1, message = "강의 수는 1개 이상이어야 합니다.")
-    private int lectureCount;
 }

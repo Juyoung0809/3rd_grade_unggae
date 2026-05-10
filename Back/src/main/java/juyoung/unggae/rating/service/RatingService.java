@@ -31,17 +31,21 @@ public class RatingService {
     private final EnrollmentRepository enrollmentRepository;
 
     public RatingResponse addRating(Long userId, RatingRequest request) {
+        return addRatingByCourse(userId, request.getCourseId(), request);
+    }
+
+    public RatingResponse addRatingByCourse(Long userId, Long courseId, RatingRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Course course = courseRepository.findById(request.getCourseId())
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
 
-        if (!enrollmentRepository.existsByUserIdAndCourseId(userId, request.getCourseId())) {
+        if (!enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)) {
             throw new CustomException(ErrorCode.NOT_ENROLLED);
         }
 
-        if (ratingRepository.existsByUserIdAndCourseId(userId, request.getCourseId())) {
+        if (ratingRepository.existsByUserIdAndCourseId(userId, courseId)) {
             throw new CustomException(ErrorCode.RATING_ALREADY_EXISTS);
         }
 
@@ -79,5 +83,16 @@ public class RatingService {
 
         rating.update(request.getScore(), request.getComment());
         return RatingResponse.from(rating);
+    }
+
+    public void deleteRating(Long userId, Long ratingId) {
+        Rating rating = ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RATING_NOT_FOUND));
+
+        if (!rating.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.RATING_FORBIDDEN);
+        }
+
+        ratingRepository.delete(rating);
     }
 }

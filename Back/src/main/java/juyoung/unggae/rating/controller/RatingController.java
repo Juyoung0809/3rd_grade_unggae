@@ -65,4 +65,13 @@ public class RatingController {
         RatingResponse response = ratingService.updateRating(userId, ratingId, request);
         return ResponseEntity.ok(ApiResponse.success("평점이 수정되었습니다.", response));
     }
+
+    @Operation(summary = "평점 삭제", description = "본인이 등록한 평점을 삭제합니다. [JWT 필요]")
+    @DeleteMapping("/{ratingId}")
+    public ResponseEntity<ApiResponse<Void>> deleteRating(
+            @AuthenticationPrincipal Long userId,
+            @Parameter(description = "삭제할 평점 ID") @PathVariable Long ratingId) {
+        ratingService.deleteRating(userId, ratingId);
+        return ResponseEntity.ok(ApiResponse.success("평점이 삭제되었습니다.", null));
+    }
 }

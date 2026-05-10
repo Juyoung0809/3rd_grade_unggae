@@ -20,7 +20,7 @@ public class AnswerResponse {
         this.id = answer.getId();
         this.content = answer.getContent();
         this.authorId = answer.getAuthor().getId();
-        this.authorName = answer.getAuthor().getName();
+        this.authorName = answer.getAuthor().getNickname();
         this.instructorAnswer = answer.isInstructorAnswer();
         this.createdAt = answer.getCreatedAt();
         this.updatedAt = answer.getUpdatedAt();

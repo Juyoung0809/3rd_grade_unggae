@@ -6,7 +6,14 @@ import CourseListPage from './pages/CourseListPage'
 import CourseDetailPage from './pages/CourseDetailPage'
 import MyEnrollmentsPage from './pages/MyEnrollmentsPage'
 import InstructorCoursesPage from './pages/InstructorCoursesPage'
-import PaymentHistoryPage from './pages/PaymentHistoryPage'
+import InstructorRevenuePage from './pages/InstructorRevenuePage'
+// import PaymentHistoryPage from './pages/PaymentHistoryPage' // P3 — 결제모듈
+import AdminPage from './pages/AdminPage'
+import ProfilePage from './pages/ProfilePage'
+import RefundPage from './pages/RefundPage'
+// import PaymentPage from './pages/PaymentPage' // P3 — 결제모듈
+// import PaymentSuccessPage from './pages/PaymentSuccessPage' // P3 — 결제모듈
+// import PaymentFailPage from './pages/PaymentFailPage' // P3 — 결제모듈
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { accessToken } = useAuth()
@@ -29,6 +36,7 @@ export default function App() {
             </PrivateRoute>
           }
         />
+        {/* P3 — 결제모듈 (Phase 6에서 활성화)
         <Route
           path="/my/payments"
           element={
@@ -36,7 +44,7 @@ export default function App() {
               <PaymentHistoryPage />
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route
           path="/instructor/courses"
           element={
@@ -45,6 +53,57 @@ export default function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/instructor/revenue"
+          element={
+            <PrivateRoute>
+              <InstructorRevenuePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <AdminPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/my/refund"
+          element={
+            <PrivateRoute>
+              <RefundPage />
+            </PrivateRoute>
+          }
+        />
+        {/* P3 — 결제모듈 (Phase 6에서 활성화)
+        <Route
+          path="/payment"
+          element={
+            <PrivateRoute>
+              <PaymentPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/payment/success"
+          element={
+            <PrivateRoute>
+              <PaymentSuccessPage />
+            </PrivateRoute>
+          }
+        />
+        <Route path="/payment/fail" element={<PaymentFailPage />} />
+        */}
       </Routes>
     </BrowserRouter>
   )

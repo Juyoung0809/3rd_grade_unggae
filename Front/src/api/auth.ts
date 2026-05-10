@@ -3,7 +3,7 @@ import api from './axios'
 export interface RegisterRequest {
   email: string
   password: string
-  name: string
+  nickname: string
   role: 'STUDENT' | 'INSTRUCTOR'
 }
 
@@ -18,7 +18,7 @@ export interface AuthResponse {
   user: {
     id: number
     email: string
-    name: string
+    nickname: string
     role: string
   }
 }

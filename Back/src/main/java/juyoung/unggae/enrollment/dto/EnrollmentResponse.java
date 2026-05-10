@@ -29,7 +29,7 @@ public class EnrollmentResponse {
         this.thumbnailUrl = enrollment.getCourse().getThumbnail();
         this.courseCategory = enrollment.getCourse().getCategory().name();
         this.coursePrice = enrollment.getCourse().getPrice();
-        this.instructorName = enrollment.getCourse().getInstructor().getName();
+        this.instructorName = enrollment.getCourse().getInstructor().getNickname();
         this.completedLectureCount = enrollment.getCompletedLectureCount();
         this.lectureCount = enrollment.getCourse().getLectureCount();
         this.progressPercent = enrollment.getProgressPercent();

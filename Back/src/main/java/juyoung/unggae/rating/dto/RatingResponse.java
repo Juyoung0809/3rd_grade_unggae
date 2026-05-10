@@ -21,7 +21,7 @@ public class RatingResponse {
         this.score = rating.getScore();
         this.comment = rating.getComment();
         this.authorId = rating.getUser().getId();
-        this.authorName = rating.getUser().getName();
+        this.authorName = rating.getUser().getNickname();
         this.createdAt = rating.getCreatedAt();
         this.updatedAt = rating.getUpdatedAt();
     }

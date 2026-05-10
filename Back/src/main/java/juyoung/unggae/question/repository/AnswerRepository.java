@@ -10,4 +10,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     List<Answer> findByQuestionIdOrderByCreatedAtAsc(Long questionId);
 
     int countByQuestionId(Long questionId);
+
+    void deleteByQuestionId(Long questionId);
 }

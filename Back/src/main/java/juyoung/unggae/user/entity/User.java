@@ -27,8 +27,11 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 50)
-    private String name;
+    @Column(name = "nickname", nullable = false, length = 50)
+    private String nickname;
+
+    @Column(columnDefinition = "TEXT")
+    private String bio;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -39,8 +42,8 @@ public class User {
     @Builder.Default
     private Status status = Status.ACTIVE;
 
-    @Column(name = "profile_image")
-    private String profileImage;
+    @Column(name = "profile_image_key")
+    private String profileImageKey;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -56,5 +59,26 @@ public class User {
 
     public enum Status {
         ACTIVE, INACTIVE, SUSPENDED
+    }
+
+    public void updateProfile(String nickname, String bio) {
+        if (nickname != null && !nickname.isBlank()) {
+            this.nickname = nickname;
+        }
+        if (bio != null) {
+            this.bio = bio;
+        }
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void updateStatus(Status status) {
+        this.status = status;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
     }
 }

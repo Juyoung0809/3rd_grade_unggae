@@ -3,7 +3,7 @@ import { createContext, useContext, useReducer, useEffect, type ReactNode } from
 interface User {
   id: number
   email: string
-  name: string
+  nickname: string
   role: string
 }
 
@@ -16,6 +16,7 @@ interface AuthState {
 type AuthAction =
   | { type: 'LOGIN'; payload: { accessToken: string; refreshToken: string; user: User } }
   | { type: 'REFRESH'; payload: { accessToken: string; refreshToken: string } }
+  | { type: 'UPDATE_USER'; payload: Partial<User> }
   | { type: 'LOGOUT' }
 
 const initialState: AuthState = {
@@ -45,6 +46,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         accessToken: action.payload.accessToken,
         refreshToken: action.payload.refreshToken,
       }
+    case 'UPDATE_USER':
+      return { ...state, user: state.user ? { ...state.user, ...action.payload } : null }
     case 'LOGOUT':
       return { accessToken: null, refreshToken: null, user: null }
     default:
@@ -55,6 +58,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 interface AuthContextValue extends AuthState {
   login: (accessToken: string, refreshToken: string, user: User) => void
   refreshTokens: (accessToken: string, refreshToken: string) => void
+  updateUser: (updates: Partial<User>) => void
   logout: () => void
 }
 
@@ -84,10 +88,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshTokens = (accessToken: string, refreshToken: string) =>
     dispatch({ type: 'REFRESH', payload: { accessToken, refreshToken } })
 
+  const updateUser = (updates: Partial<User>) =>
+    dispatch({ type: 'UPDATE_USER', payload: updates })
+
   const logout = () => dispatch({ type: 'LOGOUT' })
 
   return (
-    <AuthContext.Provider value={{ ...state, login, refreshTokens, logout }}>
+    <AuthContext.Provider value={{ ...state, login, refreshTokens, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   )

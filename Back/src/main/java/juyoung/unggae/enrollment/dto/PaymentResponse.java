@@ -24,7 +24,7 @@ public class PaymentResponse {
         this.courseTitle = enrollment.getCourse().getTitle();
         this.thumbnailUrl = enrollment.getCourse().getThumbnail();
         this.courseCategory = enrollment.getCourse().getCategory().name();
-        this.instructorName = enrollment.getCourse().getInstructor().getName();
+        this.instructorName = enrollment.getCourse().getInstructor().getNickname();
         this.paidPrice = enrollment.getPaidPrice();
         this.paidAt = enrollment.getEnrolledAt();
     }

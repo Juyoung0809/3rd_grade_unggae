@@ -42,7 +42,7 @@ public class CourseResponse {
         this.lectureCount = course.getLectureCount();
         this.instructor = new InstructorInfo(
                 course.getInstructor().getId(),
-                course.getInstructor().getName()
+                course.getInstructor().getNickname()
         );
     }
 

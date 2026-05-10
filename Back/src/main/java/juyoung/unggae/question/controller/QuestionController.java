@@ -85,4 +85,23 @@ public class QuestionController {
         AnswerResponse response = questionService.updateAnswer(userId, answerId, request);
         return ResponseEntity.ok(ApiResponse.success("답변이 수정되었습니다.", response));
     }
+
+    @Operation(summary = "질문 삭제", description = "본인이 등록한 질문을 삭제합니다. 해당 질문의 모든 답변도 함께 삭제됩니다. [JWT 필요]")
+    @DeleteMapping("/{questionId}")
+    public ResponseEntity<ApiResponse<Void>> deleteQuestion(
+            @AuthenticationPrincipal Long userId,
+            @Parameter(description = "삭제할 질문 ID") @PathVariable Long questionId) {
+        questionService.deleteQuestion(userId, questionId);
+        return ResponseEntity.ok(ApiResponse.success("질문이 삭제되었습니다.", null));
+    }
+
+    @Operation(summary = "답변 삭제", description = "본인이 등록한 답변을 삭제합니다. [JWT 필요]")
+    @DeleteMapping("/{questionId}/answers/{answerId}")
+    public ResponseEntity<ApiResponse<Void>> deleteAnswer(
+            @AuthenticationPrincipal Long userId,
+            @Parameter(description = "질문 ID") @PathVariable Long questionId,
+            @Parameter(description = "삭제할 답변 ID") @PathVariable Long answerId) {
+        questionService.deleteAnswer(userId, answerId);
+        return ResponseEntity.ok(ApiResponse.success("답변이 삭제되었습니다.", null));
+    }
 }

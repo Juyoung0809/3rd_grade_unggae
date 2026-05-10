@@ -19,12 +19,12 @@ public class TokenResponse {
     public static class UserInfo {
         private Long id;
         private String email;
-        private String name;
+        private String nickname;
         private String role;
     }
 
     public static TokenResponse of(String accessToken, String refreshToken, long expiresIn, User user) {
-        UserInfo userInfo = new UserInfo(user.getId(), user.getEmail(), user.getName(), user.getRole().name());
+        UserInfo userInfo = new UserInfo(user.getId(), user.getEmail(), user.getNickname(), user.getRole().name());
         return new TokenResponse(accessToken, refreshToken, "Bearer", expiresIn, userInfo);
     }
 }
