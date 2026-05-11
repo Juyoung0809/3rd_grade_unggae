@@ -7,7 +7,7 @@ import CourseDetailPage from './pages/CourseDetailPage'
 import MyEnrollmentsPage from './pages/MyEnrollmentsPage'
 import InstructorCoursesPage from './pages/InstructorCoursesPage'
 import InstructorRevenuePage from './pages/InstructorRevenuePage'
-// import PaymentHistoryPage from './pages/PaymentHistoryPage' // P3 — 결제모듈
+import PaymentHistoryPage from './pages/PaymentHistoryPage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
 import RefundPage from './pages/RefundPage'
@@ -36,7 +36,6 @@ export default function App() {
             </PrivateRoute>
           }
         />
-        {/* P3 — 결제모듈 (Phase 6에서 활성화)
         <Route
           path="/my/payments"
           element={
@@ -44,7 +43,7 @@ export default function App() {
               <PaymentHistoryPage />
             </PrivateRoute>
           }
-        /> */}
+        />
         <Route
           path="/instructor/courses"
           element={

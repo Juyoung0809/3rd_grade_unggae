@@ -31,10 +31,10 @@ public class RatingService {
     private final EnrollmentRepository enrollmentRepository;
 
     public RatingResponse addRating(Long userId, RatingRequest request) {
-        return addRatingByCourse(userId, request.getCourseId(), request);
+        return addRatingByCourse(userId, request.getCourseId(), request.getScore(), request.getComment());
     }
 
-    public RatingResponse addRatingByCourse(Long userId, Long courseId, RatingRequest request) {
+    public RatingResponse addRatingByCourse(Long userId, Long courseId, int score, String comment) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -52,8 +52,8 @@ public class RatingService {
         Rating rating = Rating.builder()
                 .user(user)
                 .course(course)
-                .score(request.getScore())
-                .comment(request.getComment())
+                .score(score)
+                .comment(comment)
                 .build();
 
         return RatingResponse.from(ratingRepository.save(rating));
