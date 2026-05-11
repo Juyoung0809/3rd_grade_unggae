@@ -1,6 +1,5 @@
 package juyoung.unggae.payment.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import juyoung.unggae.common.exception.CustomException;
 import juyoung.unggae.common.response.ErrorCode;
 import juyoung.unggae.course.entity.Course;
@@ -22,18 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-// P3 — 결제모듈: @Service 비활성화 (Phase 6에서 활성화)
-// @Service
+@Service
 @RequiredArgsConstructor
 @Transactional
 public class PaymentService {
@@ -42,7 +34,6 @@ public class PaymentService {
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final UserRepository userRepository;
-    private final ObjectMapper objectMapper;
 
     @Value("${toss.secret-key}")
     private String tossSecretKey;
@@ -98,8 +89,7 @@ public class PaymentService {
             throw new CustomException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
         }
 
-        verifyWithToss(request.getPaymentKey(), request.getOrderId(), request.getAmount().longValue());
-
+        // 데모 모드: Toss 실결제 검증 스킵
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -127,31 +117,4 @@ public class PaymentService {
         return EnrollmentResponse.from(enrollment);
     }
 
-    private void verifyWithToss(String paymentKey, String orderId, long amount) {
-        String authHeader = "Basic " + Base64.getEncoder()
-                .encodeToString((tossSecretKey + ":").getBytes());
-
-        try {
-            String body = objectMapper.writeValueAsString(
-                    Map.of("paymentKey", paymentKey, "orderId", orderId, "amount", amount));
-
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.tosspayments.com/v1/payments/confirm"))
-                    .header("Authorization", authHeader)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(body))
-                    .build();
-
-            HttpResponse<String> response = HttpClient.newHttpClient()
-                    .send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() != 200) {
-                throw new CustomException(ErrorCode.PAYMENT_FAILED);
-            }
-        } catch (CustomException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.PAYMENT_FAILED);
-        }
-    }
 }

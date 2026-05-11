@@ -1,5 +1,3 @@
-// P3 — 결제모듈 전체 (Phase 6에서 활성화)
-/*
 import api from './axios'
 
 export interface PaymentHistory {
@@ -37,4 +35,3 @@ export const preparePayment = (courseId: number): Promise<PaymentPrepare> =>
 
 export const confirmPayment = (data: PaymentConfirmData): Promise<void> =>
   api.post('/api/payments/confirm', data)
-*/

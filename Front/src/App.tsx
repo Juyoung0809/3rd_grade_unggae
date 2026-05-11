@@ -11,9 +11,9 @@ import InstructorRevenuePage from './pages/InstructorRevenuePage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
 import RefundPage from './pages/RefundPage'
-// import PaymentPage from './pages/PaymentPage' // P3 — 결제모듈
-// import PaymentSuccessPage from './pages/PaymentSuccessPage' // P3 — 결제모듈
-// import PaymentFailPage from './pages/PaymentFailPage' // P3 — 결제모듈
+import PaymentPage from './pages/PaymentPage'
+import PaymentSuccessPage from './pages/PaymentSuccessPage'
+import PaymentFailPage from './pages/PaymentFailPage'
 
 function PrivateRoute({ children }: { children: ReactNode }) {
   const { accessToken } = useAuth()
@@ -85,7 +85,6 @@ export default function App() {
             </PrivateRoute>
           }
         />
-        {/* P3 — 결제모듈 (Phase 6에서 활성화)
         <Route
           path="/payment"
           element={
@@ -103,7 +102,6 @@ export default function App() {
           }
         />
         <Route path="/payment/fail" element={<PaymentFailPage />} />
-        */}
       </Routes>
     </BrowserRouter>
   )

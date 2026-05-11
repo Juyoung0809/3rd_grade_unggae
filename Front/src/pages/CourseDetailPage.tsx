@@ -36,7 +36,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 }
 
 function getYoutubeEmbedUrl(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/)
+  const match = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/)
   return match ? `https://www.youtube.com/embed/${match[1]}` : null
 }
 
@@ -882,35 +882,46 @@ export default function CourseDetailPage() {
             </div>
 
             {/* 플레이어 */}
-            {isYoutube(activeLecture.videoUrl) ? (
-              <div className="relative w-full bg-black" style={{ paddingBottom: '56.25%' }}>
-                <iframe
+            {(() => {
+              const embedUrl = getYoutubeEmbedUrl(activeLecture.videoUrl)
+              if (isYoutube(activeLecture.videoUrl) && embedUrl) {
+                return (
+                  <div className="relative w-full bg-black" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      key={activeLecture.id}
+                      src={`${embedUrl}?enablejsapi=1`}
+                      className="absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )
+              }
+              if (!activeLecture.videoUrl || activeLecture.videoUrl === 'PLACEHOLDER') {
+                return (
+                  <div className="w-full bg-black flex items-center justify-center" style={{ height: '300px' }}>
+                    <p className="text-slate-400 text-sm">영상이 준비 중입니다.</p>
+                  </div>
+                )
+              }
+              return (
+                <video
                   key={activeLecture.id}
-                  src={`${getYoutubeEmbedUrl(activeLecture.videoUrl)}?enablejsapi=1`}
-                  className="absolute inset-0 w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
+                  src={activeLecture.videoUrl}
+                  controls
+                  controlsList="nodownload"
+                  className="w-full bg-black"
+                  onEnded={() => enrolled && handleVideoEnded(activeLecture.id)}
                 />
-              </div>
-            ) : (
-              <video
-                key={activeLecture.id}
-                src={activeLecture.videoUrl}
-                controls
-                controlsList="nodownload"
-                className="w-full bg-black"
-                onEnded={() => enrolled && handleVideoEnded(activeLecture.id)}
-              />
-            )}
+              )
+            })()}
 
             {/* 모달 푸터 */}
-            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-4">
+            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200">
               <p className="text-sm text-slate-500">
                 {enrolled ? (
                   completedLectureIds.has(activeLecture.id) ? (
                     <span className="text-emerald-600 font-medium">✓ 완료한 강의입니다</span>
-                  ) : isYoutube(activeLecture.videoUrl) ? (
-                    '영상을 끝까지 시청한 후 완료 처리해주세요.'
                   ) : (
                     '영상을 끝까지 시청하면 자동으로 완료 처리됩니다.'
                   )
@@ -918,12 +929,6 @@ export default function CourseDetailPage() {
                   '수강 신청 후 진도율이 기록됩니다.'
                 )}
               </p>
-              {enrolled && isYoutube(activeLecture.videoUrl) && !completedLectureIds.has(activeLecture.id) && (
-                <button onClick={() => handleVideoEnded(activeLecture.id)}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
-                  시청 완료
-                </button>
-              )}
             </div>
           </div>
         </div>

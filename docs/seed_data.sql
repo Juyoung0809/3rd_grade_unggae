@@ -17,13 +17,24 @@ TRUNCATE TABLE answers;
 TRUNCATE TABLE questions;
 TRUNCATE TABLE courses;
 
--- 기존 강사 계정 삭제 (재실행 시 중복 방지)
+-- 기존 계정 삭제 (재실행 시 중복 방지)
 DELETE FROM users WHERE email IN (
   'kim.youngjin@edithub.com', 'lee.soohyun@edithub.com',
-  'park.jungwoo@edithub.com', 'choi.minji@edithub.com', 'jung.seungho@edithub.com'
+  'park.jungwoo@edithub.com', 'choi.minji@edithub.com', 'jung.seungho@edithub.com',
+  'admin@edithub.com',
+  'student1@edithub.com', 'student2@edithub.com', 'student3@edithub.com'
 );
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ============================================================
+-- 관리자 1명 + 수강생 3명 생성 (비밀번호: test1234)
+-- ============================================================
+INSERT INTO users (email, password, name, nickname, bio, role, status, created_at, updated_at) VALUES
+('admin@edithub.com',    '$2b$10$EifpTCaTiwo6EJ.CXvcrX.uPdUIOmXZG/BI5rt3OyN/oAcx5QrYXC', '관리자', '관리자', 'EditHub 서비스 운영 관리자', 'ADMIN', 'ACTIVE', NOW(), NOW()),
+('student1@edithub.com', '$2b$10$EifpTCaTiwo6EJ.CXvcrX.uPdUIOmXZG/BI5rt3OyN/oAcx5QrYXC', '김수강', '김수강', '영상 편집을 배우고 싶은 초보 유튜버', 'STUDENT', 'ACTIVE', NOW(), NOW()),
+('student2@edithub.com', '$2b$10$EifpTCaTiwo6EJ.CXvcrX.uPdUIOmXZG/BI5rt3OyN/oAcx5QrYXC', '이학생', '이학생', '모션그래픽과 색보정에 관심 많은 디자인과 학생', 'STUDENT', 'ACTIVE', NOW(), NOW()),
+('student3@edithub.com', '$2b$10$EifpTCaTiwo6EJ.CXvcrX.uPdUIOmXZG/BI5rt3OyN/oAcx5QrYXC', '박크리', '박크리', '쇼츠·릴스 전문 크리에이터 지망생', 'STUDENT', 'ACTIVE', NOW(), NOW());
 
 -- ============================================================
 -- 강사 5명 생성 (비밀번호: test1234)
@@ -119,45 +130,45 @@ SELECT c.id, '섹션 2. 라이브 & 홍보 영상 제작', 2, NOW(), NOW() FROM 
 -- video_url = 'PLACEHOLDER' → 나중에 직접 교체
 -- ============================================================
 INSERT INTO lectures (course_id, section_id, title, order_index, video_type, video_url)
-SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '유튜브 알고리즘 공략 편집 완전정복' UNION ALL
-SELECT c.id, s.id, '편집 프로그램 설치와 기본 설정', 2, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '유튜브 알고리즘 공략 편집 완전정복' UNION ALL
-SELECT c.id, s.id, '알고리즘에 유리한 편집 패턴', 3, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '유튜브 알고리즘 공략 편집 완전정복' UNION ALL
-SELECT c.id, s.id, '완성 영상 출력 & 업로드 전략', 4, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '유튜브 알고리즘 공략 편집 완전정복' UNION ALL
+SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'https://youtu.be/_5hxgVcwXkM?si=lKPnQLfDvfHa-HF8' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '유튜브 알고리즘 공략 편집 완전정복' UNION ALL
+SELECT c.id, s.id, '편집 프로그램 설치와 기본 설정', 2, 'URL', 'https://youtu.be/MlHMNgdaPrA?si=j1VtfMuB_L_ZOlt8' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '유튜브 알고리즘 공략 편집 완전정복' UNION ALL
+SELECT c.id, s.id, '알고리즘에 유리한 편집 패턴', 3, 'URL', 'https://youtu.be/WIIX-ODjLDA?si=81jSaliQYnqjNghv' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '유튜브 알고리즘 공략 편집 완전정복' UNION ALL
+SELECT c.id, s.id, '완성 영상 출력 & 업로드 전략', 4, 'URL', 'https://youtu.be/WIRFxdVpmFY?si=WcHcezSbx2e36o7c' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '유튜브 알고리즘 공략 편집 완전정복' UNION ALL
 
-SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '쇼츠 바이럴 편집 전략 A to Z' UNION ALL
-SELECT c.id, s.id, '쇼츠 구조 분석과 훅(Hook) 기법', 2, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '쇼츠 바이럴 편집 전략 A to Z' UNION ALL
-SELECT c.id, s.id, '음악 싱크 & 자막 효과 실전', 3, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '쇼츠 바이럴 편집 전략 A to Z' UNION ALL
-SELECT c.id, s.id, '바이럴 쇼츠 완성 & 배포 전략', 4, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '쇼츠 바이럴 편집 전략 A to Z' UNION ALL
+SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'https://youtu.be/NBOZD7IEm6Q?si=dCnVo9OMBV-5wk24' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '쇼츠 바이럴 편집 전략 A to Z' UNION ALL
+SELECT c.id, s.id, '쇼츠 구조 분석과 훅(Hook) 기법', 2, 'URL', 'https://youtu.be/Hzf7QsBpoVw?si=tC5qeGGESBRR6mC6' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '쇼츠 바이럴 편집 전략 A to Z' UNION ALL
+SELECT c.id, s.id, '음악 싱크 & 자막 효과 실전', 3, 'URL', 'https://youtu.be/nWASqf0-yNw?si=YDmAo1-1GjfgGsva' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '쇼츠 바이럴 편집 전략 A to Z' UNION ALL
+SELECT c.id, s.id, '바이럴 쇼츠 완성 & 배포 전략', 4, 'URL', 'https://youtu.be/-eZk-bD3FWs?si=_rmb9sf_HHoMPrDg' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '쇼츠 바이럴 편집 전략 A to Z' UNION ALL
 
-SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '클릭율 200% 유튜브 썸네일 제작' UNION ALL
-SELECT c.id, s.id, '썸네일 디자인 원리와 폰트·색상 선택', 2, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '클릭율 200% 유튜브 썸네일 제작' UNION ALL
-SELECT c.id, s.id, '포토샵으로 썸네일 제작하기', 3, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '클릭율 200% 유튜브 썸네일 제작' UNION ALL
-SELECT c.id, s.id, 'A/B 테스트로 클릭율 최적화', 4, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '클릭율 200% 유튜브 썸네일 제작' UNION ALL
+SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'https://youtu.be/Dzhf_0qAaXw?si=P364xvl4ClFv4wtL' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '클릭율 200% 유튜브 썸네일 제작' UNION ALL
+SELECT c.id, s.id, '썸네일 디자인 원리와 폰트·색상 선택', 2, 'URL', 'https://youtu.be/lc2WFLXke9E?si=CLnDXpB1P2MJlwRm' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '클릭율 200% 유튜브 썸네일 제작' UNION ALL
+SELECT c.id, s.id, '포토샵으로 썸네일 제작하기', 3, 'URL', 'https://youtu.be/KFdmhjEtsdM?si=EQG0gFxg2k7P8Sqi' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '클릭율 200% 유튜브 썸네일 제작' UNION ALL
+SELECT c.id, s.id, 'A/B 테스트로 클릭율 최적화', 4, 'URL', 'https://youtu.be/i7VoAmoWOGA?si=iTtekMmP62Mmv6v1' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '클릭율 200% 유튜브 썸네일 제작' UNION ALL
 
-SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '감성 브이로그 편집 스쿨' UNION ALL
-SELECT c.id, s.id, '브이로그 기획과 촬영 팁', 2, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '감성 브이로그 편집 스쿨' UNION ALL
-SELECT c.id, s.id, '색감 보정과 BGM 선택 노하우', 3, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '감성 브이로그 편집 스쿨' UNION ALL
-SELECT c.id, s.id, '트랜지션 기법으로 감성 브이로그 완성', 4, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '감성 브이로그 편집 스쿨' UNION ALL
+SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'https://youtu.be/HgIkbtxqpiQ?si=cfo-lfdTvc3HVROL' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '감성 브이로그 편집 스쿨' UNION ALL
+SELECT c.id, s.id, '브이로그 기획과 촬영 팁', 2, 'URL', 'https://youtu.be/5bbG8mK-Xe4?si=zUCl8hXhHM9mfJlK' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '감성 브이로그 편집 스쿨' UNION ALL
+SELECT c.id, s.id, '색감 보정과 BGM 선택 노하우', 3, 'URL', 'https://youtu.be/Xab4UnsXE4Q?si=vLFdiiJylxn3UGoE' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '감성 브이로그 편집 스쿨' UNION ALL
+SELECT c.id, s.id, '트랜지션 기법으로 감성 브이로그 완성', 4, 'URL', 'https://youtu.be/VPs0ZyxQdjU?si=LZfwwpQkeu8QWHIT' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '감성 브이로그 편집 스쿨' UNION ALL
 
-SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '프리미어 프로 영상 후반작업 마스터' UNION ALL
-SELECT c.id, s.id, '색보정과 오디오 믹싱 기초', 2, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '프리미어 프로 영상 후반작업 마스터' UNION ALL
-SELECT c.id, s.id, 'VFX 합성과 고급 효과 적용', 3, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '프리미어 프로 영상 후반작업 마스터' UNION ALL
-SELECT c.id, s.id, '렌더링 최적화 & 납품 포맷 설정', 4, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '프리미어 프로 영상 후반작업 마스터' UNION ALL
+SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'https://youtube.com/shorts/XgsBvmE78w0' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '프리미어 프로 영상 후반작업 마스터' UNION ALL
+SELECT c.id, s.id, '색보정과 오디오 믹싱 기초', 2, 'URL', 'https://youtube.com/shorts/tvg-vu_TD6Q' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '프리미어 프로 영상 후반작업 마스터' UNION ALL
+SELECT c.id, s.id, 'VFX 합성과 고급 효과 적용', 3, 'URL', 'https://youtube.com/shorts/krLCC83ITKw' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '프리미어 프로 영상 후반작업 마스터' UNION ALL
+SELECT c.id, s.id, '렌더링 최적화 & 납품 포맷 설정', 4, 'URL', 'https://www.youtube.com/shorts/krLCC83ITKw' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '프리미어 프로 영상 후반작업 마스터' UNION ALL
 
-SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '광고 영상 기획부터 편집까지 실무 클래스' UNION ALL
-SELECT c.id, s.id, '브랜드 광고 기획과 스토리보드 작성', 2, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '광고 영상 기획부터 편집까지 실무 클래스' UNION ALL
-SELECT c.id, s.id, '광고 편집 실무 — 컷 & 사운드', 3, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '광고 영상 기획부터 편집까지 실무 클래스' UNION ALL
-SELECT c.id, s.id, '광고 납품 & 플랫폼별 최적화', 4, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '광고 영상 기획부터 편집까지 실무 클래스' UNION ALL
+SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'https://www.youtube.com/shorts/aAXwRKL2r60' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '광고 영상 기획부터 편집까지 실무 클래스' UNION ALL
+SELECT c.id, s.id, '브랜드 광고 기획과 스토리보드 작성', 2, 'URL', 'https://www.youtube.com/shorts/UPnqILAMzh4' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '광고 영상 기획부터 편집까지 실무 클래스' UNION ALL
+SELECT c.id, s.id, '광고 편집 실무 — 컷 & 사운드', 3, 'URL', 'https://www.youtube.com/shorts/DUB2SiuDG8w' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '광고 영상 기획부터 편집까지 실무 클래스' UNION ALL
+SELECT c.id, s.id, '광고 납품 & 플랫폼별 최적화', 4, 'URL', 'https://www.youtube.com/shorts/KaVcpisxaV4' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '광고 영상 기획부터 편집까지 실무 클래스' UNION ALL
 
-SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '웨딩·행사 영상 전문 편집 클래스' UNION ALL
-SELECT c.id, s.id, '웨딩·행사 촬영 이해와 소재 정리', 2, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '웨딩·행사 영상 전문 편집 클래스' UNION ALL
-SELECT c.id, s.id, '하이라이트 편집과 음악 싱크', 3, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '웨딩·행사 영상 전문 편집 클래스' UNION ALL
-SELECT c.id, s.id, '자막 디자인 & 최종 납품', 4, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '웨딩·행사 영상 전문 편집 클래스' UNION ALL
+SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'https://www.youtube.com/shorts/DdCEedLSN9Y' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '웨딩·행사 영상 전문 편집 클래스' UNION ALL
+SELECT c.id, s.id, '웨딩·행사 촬영 이해와 소재 정리', 2, 'URL', 'https://www.youtube.com/shorts/TuS1IA_Cazg' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '웨딩·행사 영상 전문 편집 클래스' UNION ALL
+SELECT c.id, s.id, '하이라이트 편집과 음악 싱크', 3, 'URL', 'https://www.youtube.com/shorts/0Y5iAXjJ6Ek' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '웨딩·행사 영상 전문 편집 클래스' UNION ALL
+SELECT c.id, s.id, '자막 디자인 & 최종 납품', 4, 'URL', 'https://www.youtube.com/shorts/5ZiiMzhUjGU' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '웨딩·행사 영상 전문 편집 클래스' UNION ALL
 
-SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '업종별 홍보 영상 제작 실전 가이드' UNION ALL
-SELECT c.id, s.id, '업종 분석과 홍보 영상 기획', 2, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '업종별 홍보 영상 제작 실전 가이드' UNION ALL
-SELECT c.id, s.id, '음식점·카페 홍보 영상 편집 실전', 3, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '업종별 홍보 영상 제작 실전 가이드' UNION ALL
-SELECT c.id, s.id, '쇼핑몰·부동산 홍보 영상 완성', 4, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '업종별 홍보 영상 제작 실전 가이드' UNION ALL
+SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'https://www.youtube.com/shorts/LfhNQWYbgAs' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '업종별 홍보 영상 제작 실전 가이드' UNION ALL
+SELECT c.id, s.id, '업종 분석과 홍보 영상 기획', 2, 'URL', 'https://www.youtube.com/shorts/sSGcwWb8pG8' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = '업종별 홍보 영상 제작 실전 가이드' UNION ALL
+SELECT c.id, s.id, '음식점·카페 홍보 영상 편집 실전', 3, 'URL', 'https://www.youtube.com/shorts/_23XbOk7IlE' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '업종별 홍보 영상 제작 실전 가이드' UNION ALL
+SELECT c.id, s.id, '쇼핑몰·부동산 홍보 영상 완성', 4, 'URL', 'https://www.youtube.com/shorts/nUU6gSFmQww' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 2 WHERE c.title = '업종별 홍보 영상 제작 실전 가이드' UNION ALL
 
 SELECT c.id, s.id, '강좌 소개 및 커리큘럼 안내', 1, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = 'AI로 만드는 유튜브 콘텐츠 자동화' UNION ALL
 SELECT c.id, s.id, 'ChatGPT로 대본 & 썸네일 기획', 2, 'URL', 'PLACEHOLDER' FROM courses c JOIN sections s ON s.course_id = c.id AND s.order_num = 1 WHERE c.title = 'AI로 만드는 유튜브 콘텐츠 자동화' UNION ALL

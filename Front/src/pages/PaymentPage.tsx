@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getCourseDetail, type Course } from '../api/courses'
-import { preparePayment, type PaymentPrepare } from '../api/payments'
+import { preparePayment, confirmPayment, type PaymentPrepare } from '../api/payments'
 import { useAuth } from '../store/AuthContext'
 import NavBar from '../components/NavBar'
-// @ts-ignore
-import { TossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk'
 
 const CATEGORY_LABEL: Record<string, string> = {
   YOUTUBE: '유튜브 영상',
@@ -32,10 +30,8 @@ export default function PaymentPage() {
   const [course, setCourse] = useState<Course | null>(null)
   const [prepareData, setPrepareData] = useState<PaymentPrepare | null>(null)
   const [pageLoading, setPageLoading] = useState(true)
-  const [widgetReady, setWidgetReady] = useState(false)
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState('')
-  const widgetsRef = useRef<any>(null)
 
   useEffect(() => {
     if (!accessToken) {
@@ -76,52 +72,23 @@ export default function PaymentPage() {
     fetchData()
   }, [courseId, accessToken])
 
-  useEffect(() => {
-    if (!prepareData) return
-
-    async function initWidget() {
-      try {
-        const toss = await TossPayments(prepareData!.clientKey)
-        const widgets = toss.widgets({ customerKey: ANONYMOUS })
-        await widgets.setAmount({ currency: 'KRW', value: Math.round(prepareData!.amount) })
-        await Promise.all([
-          widgets.renderPaymentMethods({
-            selector: '#payment-methods',
-            variantKey: 'DEFAULT',
-          }),
-          widgets.renderAgreement({
-            selector: '#agreement',
-            variantKey: 'AGREEMENT',
-          }),
-        ])
-        widgetsRef.current = widgets
-        setWidgetReady(true)
-      } catch {
-        setError('결제 위젯을 불러오지 못했습니다.')
-      }
-    }
-
-    initWidget()
-  }, [prepareData])
-
   async function handlePay() {
-    if (!widgetsRef.current || !course || !user || !prepareData) return
+    if (!course || !user || !prepareData) return
     setPaying(true)
     setError('')
     try {
-      await widgetsRef.current.requestPayment({
+      await confirmPayment({
+        paymentKey: 'DEMO_' + prepareData.orderId,
         orderId: prepareData.orderId,
-        orderName: course.title,
-        successUrl: `${window.location.origin}/payment/success?courseId=${courseId}`,
-        failUrl: `${window.location.origin}/payment/fail?courseId=${courseId}`,
-        customerEmail: user.email,
-        customerName: user.nickname,
+        amount: prepareData.amount,
+        courseId,
       })
+      navigate(
+        `/payment/success?paymentKey=DEMO_${prepareData.orderId}&orderId=${prepareData.orderId}&amount=${prepareData.amount}&courseId=${courseId}`
+      )
     } catch (err: unknown) {
-      const e = err as { code?: string; message?: string }
-      if (e?.code !== 'USER_CANCEL') {
-        setError(e?.message ?? '결제 중 오류가 발생했습니다.')
-      }
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      setError(msg ?? '결제 중 오류가 발생했습니다.')
       setPaying(false)
     }
   }
@@ -147,10 +114,7 @@ export default function PaymentPage() {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <p className="text-red-500 font-semibold mb-3">{error}</p>
-            <button
-              onClick={() => navigate(-1)}
-              className="text-sm text-indigo-600 hover:underline"
-            >
+            <button onClick={() => navigate(-1)} className="text-sm text-indigo-600 hover:underline">
               돌아가기
             </button>
           </div>
@@ -173,7 +137,7 @@ export default function PaymentPage() {
       <main className="max-w-4xl mx-auto px-5 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-          {/* ── 왼쪽: 강의 요약 ── */}
+          {/* 왼쪽: 강의 요약 */}
           <div className="lg:col-span-2 space-y-4">
             {course && (
               <>
@@ -182,7 +146,9 @@ export default function PaymentPage() {
                     <img src={course.thumbnailUrl} alt={course.title} className="w-full h-40 object-cover" />
                   ) : (
                     <div className="w-full h-40 bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-600 flex items-center justify-center">
-                      <span className="text-white text-xl font-extrabold">Edit<span className="text-indigo-200">Hub</span></span>
+                      <span className="text-white text-xl font-extrabold">
+                        Edit<span className="text-indigo-200">Hub</span>
+                      </span>
                     </div>
                   )}
                   <div className="p-4 space-y-2">
@@ -210,19 +176,24 @@ export default function PaymentPage() {
             )}
           </div>
 
-          {/* ── 오른쪽: 결제 위젯 ── */}
+          {/* 오른쪽: 결제 수단 */}
           <div className="lg:col-span-3 space-y-4">
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-              {!widgetReady && (
-                <div className="flex items-center justify-center h-64">
-                  <div className="text-center">
-                    <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-2" />
-                    <p className="text-slate-400 text-xs">결제 수단을 불러오는 중...</p>
-                  </div>
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+              <h3 className="text-sm font-bold text-slate-900">결제 수단</h3>
+
+              <div className="flex items-center gap-3 p-4 border-2 border-indigo-500 rounded-xl bg-indigo-50">
+                <div className="w-5 h-5 rounded-full border-2 border-indigo-500 bg-indigo-500 flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-white" />
                 </div>
-              )}
-              <div id="payment-methods" />
-              <div id="agreement" />
+                <span className="text-sm font-semibold text-indigo-700">신용카드 / 체크카드</span>
+              </div>
+
+              <div className="p-4 bg-slate-50 rounded-xl space-y-2 text-xs text-slate-500">
+                <p className="font-semibold text-slate-700">결제 안내</p>
+                <p>· 결제 완료 후 즉시 수강이 가능합니다.</p>
+                <p>· 환불은 관리자 페이지를 통해 처리됩니다.</p>
+                <p>· 수강 시작 후 7일 이내 환불 신청이 가능합니다.</p>
+              </div>
             </div>
 
             {error && (
@@ -233,10 +204,10 @@ export default function PaymentPage() {
 
             <button
               onClick={handlePay}
-              disabled={paying || !widgetReady}
+              disabled={paying}
               className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-base font-extrabold rounded-2xl transition-colors shadow-lg shadow-indigo-200"
             >
-              {paying ? '결제 처리 중...' : widgetReady ? `${Number(course?.price ?? 0).toLocaleString()}원 결제하기` : '로딩 중...'}
+              {paying ? '결제 처리 중...' : `${Number(course?.price ?? 0).toLocaleString()}원 결제하기`}
             </button>
 
             <button
