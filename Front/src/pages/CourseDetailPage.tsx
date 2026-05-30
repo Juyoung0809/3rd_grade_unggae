@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getCourseDetail, type Course } from '../api/courses'
-import { enroll, checkEnrollment, getEnrollmentDetail, completeLecture, getCompletedLectureIds } from '../api/enrollments'
+import { enroll, checkEnrollment, getEnrollmentDetail, getCompletedLectureIds } from '../api/enrollments'
 import { getLectures, type Lecture } from '../api/lectures'
 import { getCourseRatings, addRating, getMyRating, updateRating, deleteRating, type Rating } from '../api/ratings'
 import {
@@ -35,11 +35,6 @@ const CATEGORY_LABEL: Record<string, string> = {
   VLOG: '브이로그',
 }
 
-function getYoutubeEmbedUrl(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{11})/)
-  return match ? `https://www.youtube.com/embed/${match[1]}` : null
-}
-
 function isYoutube(url: string): boolean {
   return url.includes('youtube.com') || url.includes('youtu.be')
 }
@@ -57,7 +52,6 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true)
   const [enrollLoading, setEnrollLoading] = useState(false)
   const [error, setError] = useState('')
-  const [activeLecture, setActiveLecture] = useState<Lecture | null>(null)
   const [completedLectureIds, setCompletedLectureIds] = useState<Set<number>>(new Set())
 
   const [ratings, setRatings] = useState<Rating[]>([])
@@ -192,19 +186,6 @@ export default function CourseDetailPage() {
       alert(msg ?? '평점 수정에 실패했습니다.')
     } finally {
       setRatingLoading(false)
-    }
-  }
-
-  async function handleVideoEnded(lectureId: number) {
-    if (completedLectureIds.has(lectureId)) return
-    try {
-      const updated = await completeLecture(id, lectureId)
-      setCompletedLectureCount(updated.completedLectureCount)
-      setProgressPercent(updated.progressPercent)
-      setCompletedLectureIds(prev => new Set([...prev, lectureId]))
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-      alert(msg ?? '강의 완료 처리에 실패했습니다.')
     }
   }
 

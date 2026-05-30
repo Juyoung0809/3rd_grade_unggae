@@ -257,11 +257,7 @@ export default function LessonPlayerPage() {
           {/* 강의 설명 */}
           <div className="p-6 bg-white flex-1">
             <div className="max-w-3xl">
-              {activeLecture.description ? (
-                <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">{activeLecture.description}</p>
-              ) : (
-                <p className="text-slate-400 text-sm">강의 설명이 없습니다.</p>
-              )}
+              <p className="text-slate-400 text-sm">강의 설명이 없습니다.</p>
               <div className="mt-6 pt-6 border-t border-slate-100 text-sm text-slate-400 space-y-1">
                 <p>강사: <span className="text-slate-600 font-medium">{course.instructor.name}</span></p>
                 <p>
