@@ -457,7 +457,6 @@ export default function CourseDetailPage() {
                         onClick={() => {
                           if (isLocked) return
                           if (enrolled) navigate(`/courses/${courseId}/learn?lecture=${lecture.id}`)
-                          else setActiveLecture(lecture)
                         }}
                         className={`flex items-center gap-4 px-6 py-4 transition-colors ${
                           isLocked
