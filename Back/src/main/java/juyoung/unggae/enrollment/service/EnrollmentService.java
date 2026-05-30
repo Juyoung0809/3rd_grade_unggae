@@ -47,7 +47,7 @@ public class EnrollmentService {
             throw new CustomException(ErrorCode.ALREADY_ENROLLED);
         }
         if (course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
-            throw new CustomException(ErrorCode.PAYMENT_CONFIRM_FAILED);
+            throw new CustomException(ErrorCode.PAYMENT_REQUIRED);
         }
 
         Enrollment enrollment = Enrollment.builder()

@@ -36,6 +36,7 @@ public enum ErrorCode {
     PAYMENT_CONFIRM_FAILED(HttpStatus.BAD_REQUEST, "PAYMENT_CONFIRM_FAILED", "결제 승인에 실패했습니다."),
     PAYMENT_CANCEL_FAILED(HttpStatus.BAD_REQUEST, "PAYMENT_CANCEL_FAILED", "결제 취소에 실패했습니다."),
     PAYMENT_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "PAYMENT_NOT_COMPLETED", "완료된 결제만 취소할 수 있습니다."),
+    PAYMENT_REQUIRED(HttpStatus.PAYMENT_REQUIRED, "PAYMENT_REQUIRED", "유료 강의는 결제 후 수강신청이 가능합니다."),
 
     // Rating
     RATING_ALREADY_EXISTS(HttpStatus.CONFLICT, "RATING_ALREADY_EXISTS", "이미 평점을 등록했습니다."),
