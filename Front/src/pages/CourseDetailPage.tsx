@@ -421,9 +421,12 @@ export default function CourseDetailPage() {
                     <p className="text-xs text-slate-400 text-center">
                       {completedLectureCount} / {course.lectureCount} 강의 완료
                     </p>
-                    <div className="px-4 py-3 bg-emerald-50 rounded-xl text-center">
-                      <span className="text-emerald-700 text-sm font-semibold">✓ 수강 중인 강의입니다</span>
-                    </div>
+                    <button
+                      onClick={() => navigate(`/courses/${courseId}/learn`)}
+                      className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition-colors"
+                    >
+                      ▶ 수강 계속하기
+                    </button>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -470,7 +473,11 @@ export default function CourseDetailPage() {
                     return (
                       <div
                         key={lecture.id}
-                        onClick={() => !isLocked && setActiveLecture(lecture)}
+                        onClick={() => {
+                          if (isLocked) return
+                          if (enrolled) navigate(`/courses/${courseId}/learn?lecture=${lecture.id}`)
+                          else setActiveLecture(lecture)
+                        }}
                         className={`flex items-center gap-4 px-6 py-4 transition-colors ${
                           isLocked
                             ? 'opacity-50 cursor-not-allowed'
@@ -857,73 +864,6 @@ export default function CourseDetailPage() {
         </div>
       </main>
 
-      {/* ── 강의 플레이어 모달 ── */}
-      {activeLecture !== null && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setActiveLecture(null)}>
-          <div className="bg-white rounded-2xl overflow-hidden max-w-4xl w-full shadow-2xl"
-            onClick={(e) => e.stopPropagation()}>
-            {/* 모달 헤더 */}
-            <div className="flex items-center justify-between px-5 py-4 bg-slate-900 text-white">
-              <div className="flex items-center gap-2.5">
-                {completedLectureIds.has(activeLecture.id) && (
-                  <span className="text-xs font-bold text-emerald-400 bg-emerald-400/20 px-2 py-0.5 rounded-full">완료</span>
-                )}
-                <h3 className="text-sm font-semibold">{activeLecture.title}</h3>
-              </div>
-              <button onClick={() => setActiveLecture(null)}
-                className="text-slate-400 hover:text-white text-xl leading-none transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10">
-                ✕
-              </button>
-            </div>
-
-            {/* 플레이어 */}
-            {isYoutube(activeLecture.videoUrl) ? (
-              <div className="relative w-full bg-black" style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  key={activeLecture.id}
-                  src={`${getYoutubeEmbedUrl(activeLecture.videoUrl)}?enablejsapi=1`}
-                  className="absolute inset-0 w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            ) : (
-              <video
-                key={activeLecture.id}
-                src={activeLecture.videoUrl}
-                controls
-                controlsList="nodownload"
-                className="w-full bg-black"
-                onEnded={() => enrolled && handleVideoEnded(activeLecture.id)}
-              />
-            )}
-
-            {/* 모달 푸터 */}
-            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-4">
-              <p className="text-sm text-slate-500">
-                {enrolled ? (
-                  completedLectureIds.has(activeLecture.id) ? (
-                    <span className="text-emerald-600 font-medium">✓ 완료한 강의입니다</span>
-                  ) : isYoutube(activeLecture.videoUrl) ? (
-                    '영상을 끝까지 시청한 후 완료 처리해주세요.'
-                  ) : (
-                    '영상을 끝까지 시청하면 자동으로 완료 처리됩니다.'
-                  )
-                ) : (
-                  '수강 신청 후 진도율이 기록됩니다.'
-                )}
-              </p>
-              {enrolled && isYoutube(activeLecture.videoUrl) && !completedLectureIds.has(activeLecture.id) && (
-                <button onClick={() => handleVideoEnded(activeLecture.id)}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors shrink-0">
-                  시청 완료
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

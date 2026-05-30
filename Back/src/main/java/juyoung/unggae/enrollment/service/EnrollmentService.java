@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,29 +33,30 @@ public class EnrollmentService {
     private final UserRepository userRepository;
     private final PaymentService paymentService;
 
+    /** 무료 강의 직접 수강신청 (유료 강의는 POST /api/payments/toss/confirm 에서 처리) */
     public EnrollmentResponse enroll(Long userId, EnrollmentRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
         Course course = courseRepository.findById(request.getCourseId())
                 .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
 
         if (course.getStatus() != Course.Status.PUBLISHED) {
             throw new CustomException(ErrorCode.COURSE_NOT_PUBLISHED);
         }
-
         if (enrollmentRepository.existsByUserIdAndCourseId(userId, request.getCourseId())) {
             throw new CustomException(ErrorCode.ALREADY_ENROLLED);
+        }
+        if (course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            throw new CustomException(ErrorCode.PAYMENT_CONFIRM_FAILED);
         }
 
         Enrollment enrollment = Enrollment.builder()
                 .user(user)
                 .course(course)
-                .paidPrice(course.getPrice())
+                .paidPrice(BigDecimal.ZERO)
                 .build();
-
         Enrollment saved = enrollmentRepository.save(enrollment);
-        paymentService.createPayment(user, course);
+        paymentService.createFreePayment(user, course);
         return EnrollmentResponse.from(saved);
     }
 
@@ -78,7 +80,6 @@ public class EnrollmentService {
         return EnrollmentResponse.from(enrollment);
     }
 
-    /** 특정 강의 챕터 완료 처리 (idempotent) */
     public EnrollmentResponse completeLecture(Long userId, Long courseId, Long lectureId) {
         Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_ENROLLED));
@@ -88,16 +89,16 @@ public class EnrollmentService {
                     .enrollment(enrollment)
                     .lectureId(lectureId)
                     .build();
-            lectureCompletionRepository.save(completion);
+            lectureCompletionRepository.saveAndFlush(completion);
 
             int completedCount = lectureCompletionRepository.countByEnrollmentId(enrollment.getId());
             enrollment.updateProgress(completedCount);
+            enrollmentRepository.save(enrollment); // 명시적 저장으로 DB 반영 보장
         }
 
         return EnrollmentResponse.from(enrollment);
     }
 
-    /** 완료한 강의 챕터 ID 목록 조회 */
     @Transactional(readOnly = true)
     public List<Long> getCompletedLectureIds(Long userId, Long courseId) {
         Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
@@ -112,11 +113,9 @@ public class EnrollmentService {
         if (enrollment.getStatus() != Enrollment.Status.ACTIVE) {
             throw new CustomException(ErrorCode.ENROLLMENT_NOT_ACTIVE);
         }
-
         enrollment.cancel();
     }
 
-    /** 수강 중인 강의 ID 목록 조회 */
     @Transactional(readOnly = true)
     public List<Long> getEnrolledCourseIds(Long userId) {
         return enrollmentRepository.findActiveEnrollmentsByUserId(userId)

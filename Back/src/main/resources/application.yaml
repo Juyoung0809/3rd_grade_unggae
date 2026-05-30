@@ -23,7 +23,6 @@ spring:
     multipart:
       max-file-size: 2GB
       max-request-size: 2GB
-
 jwt:
   secret: ${JWT_SECRET}
   access-token-expiration: 1800000    # 30분 (ms)
@@ -31,6 +30,30 @@ jwt:
 
 file:
   upload-dir: ./uploads/videos
+
+toss:
+  client-key: ${TOSS_CLIENT_KEY:test_ck_placeholder}
+  secret-key: ${TOSS_SECRET_KEY:test_sk_placeholder}
+  api-url: https://api.tosspayments.com/v1
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers,env
+  endpoint:
+    health:
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: EditHub
+    version: 1.0.0
+    description: 영상 편집 전문 온라인 강의 플랫폼
 
 springdoc:
   swagger-ui:

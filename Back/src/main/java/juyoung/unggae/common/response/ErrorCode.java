@@ -27,6 +27,15 @@ public enum ErrorCode {
     // Enrollment
     ALREADY_ENROLLED(HttpStatus.CONFLICT, "ALREADY_ENROLLED", "이미 신청한 강의입니다."),
     NOT_ENROLLED(HttpStatus.FORBIDDEN, "NOT_ENROLLED", "수강 중인 강의가 아닙니다."),
+    ENROLLMENT_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "ENROLLMENT_NOT_ACTIVE", "수강 중인 강의가 아닙니다."),
+
+    // Payment
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_NOT_FOUND", "결제 정보를 찾을 수 없습니다."),
+    PAYMENT_ALREADY_DONE(HttpStatus.CONFLICT, "PAYMENT_ALREADY_DONE", "이미 완료된 결제입니다."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "PAYMENT_AMOUNT_MISMATCH", "결제 금액이 일치하지 않습니다."),
+    PAYMENT_CONFIRM_FAILED(HttpStatus.BAD_REQUEST, "PAYMENT_CONFIRM_FAILED", "결제 승인에 실패했습니다."),
+    PAYMENT_CANCEL_FAILED(HttpStatus.BAD_REQUEST, "PAYMENT_CANCEL_FAILED", "결제 취소에 실패했습니다."),
+    PAYMENT_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "PAYMENT_NOT_COMPLETED", "완료된 결제만 취소할 수 있습니다."),
 
     // Rating
     RATING_ALREADY_EXISTS(HttpStatus.CONFLICT, "RATING_ALREADY_EXISTS", "이미 평점을 등록했습니다."),
@@ -40,9 +49,6 @@ public enum ErrorCode {
     ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "ANSWER_NOT_FOUND", "답변을 찾을 수 없습니다."),
     ANSWER_FORBIDDEN(HttpStatus.FORBIDDEN, "ANSWER_FORBIDDEN", "본인의 답변만 수정할 수 있습니다."),
     ANSWER_WRITE_FORBIDDEN(HttpStatus.FORBIDDEN, "ANSWER_WRITE_FORBIDDEN", "수강생 또는 강사만 답변을 작성할 수 있습니다."),
-
-    // Enrollment
-    ENROLLMENT_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "ENROLLMENT_NOT_ACTIVE", "수강 중인 강의가 아닙니다."),
 
     // Section
     SECTION_NOT_FOUND(HttpStatus.NOT_FOUND, "SECTION_NOT_FOUND", "섹션을 찾을 수 없습니다."),

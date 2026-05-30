@@ -7,6 +7,8 @@ import CourseDetailPage from './pages/CourseDetailPage'
 import MyEnrollmentsPage from './pages/MyEnrollmentsPage'
 import InstructorCoursesPage from './pages/InstructorCoursesPage'
 import PaymentHistoryPage from './pages/PaymentHistoryPage'
+import PaymentPage from './pages/PaymentPage'
+import LessonPlayerPage from './pages/LessonPlayerPage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
 
@@ -23,6 +25,23 @@ export default function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/courses" element={<CourseListPage />} />
         <Route path="/courses/:courseId" element={<CourseDetailPage />} />
+        <Route
+          path="/courses/:courseId/learn"
+          element={
+            <PrivateRoute>
+              <LessonPlayerPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/payment/:courseId"
+          element={
+            <PrivateRoute>
+              <PaymentPage />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/my/enrollments"
           element={

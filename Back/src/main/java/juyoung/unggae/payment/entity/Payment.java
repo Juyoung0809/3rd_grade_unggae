@@ -28,12 +28,17 @@ public class Payment {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    @Column(name = "order_id", unique = true)
+    private String orderId;
+
+    @Column(name = "payment_key")
+    private String paymentKey;
+
     @Column(name = "paid_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal paidPrice;
 
-    @Column(name = "paid_at", nullable = false)
-    @Builder.Default
-    private LocalDateTime paidAt = LocalDateTime.now();
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -42,17 +47,31 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private PaymentStatus status = PaymentStatus.COMPLETED;
+    private PaymentStatus status = PaymentStatus.PENDING;
+
+    @Column(name = "created_at", nullable = false)
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    public void confirm(String paymentKey) {
+        this.paymentKey = paymentKey;
+        this.status = PaymentStatus.COMPLETED;
+        this.paidAt = LocalDateTime.now();
+    }
+
+    public void fail() {
+        this.status = PaymentStatus.FAILED;
+    }
 
     public void cancel() {
         this.status = PaymentStatus.REFUNDED;
     }
 
     public enum PaymentMethod {
-        FREE, CARD
+        FREE, TOSS
     }
 
     public enum PaymentStatus {
-        COMPLETED, REFUNDED
+        PENDING, COMPLETED, FAILED, REFUNDED
     }
 }
