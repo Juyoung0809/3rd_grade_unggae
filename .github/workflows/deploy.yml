@@ -20,3 +20,26 @@ jobs:
             git pull origin P3
             DOCKER_BUILDKIT=0 docker-compose up -d --build
             docker-compose ps
+
+            echo "백엔드 헬스체크 대기 중..."
+            for i in $(seq 1 30); do
+              if curl -sf http://localhost/actuator/health | grep -q '"status":"UP"'; then
+                echo "백엔드 헬스체크 성공"
+                break
+              fi
+              if [ "$i" -eq 30 ]; then
+                echo "백엔드 헬스체크 실패"
+                docker-compose logs --tail=50 backend
+                exit 1
+              fi
+              sleep 5
+            done
+
+            echo "프론트엔드 헬스체크 확인 중..."
+            if curl -sf -o /dev/null http://localhost/; then
+              echo "프론트엔드 헬스체크 성공"
+            else
+              echo "프론트엔드 헬스체크 실패"
+              docker-compose logs --tail=50 frontend
+              exit 1
+            fi
