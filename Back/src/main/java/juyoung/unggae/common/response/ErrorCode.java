@@ -66,6 +66,8 @@ public enum ErrorCode {
     CURRENT_PASSWORD_WRONG(HttpStatus.BAD_REQUEST, "CURRENT_PASSWORD_WRONG", "현재 비밀번호가 올바르지 않습니다."),
 
     // Common
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "로그인이 필요합니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "FORBIDDEN", "접근 권한이 없습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "서버 오류가 발생했습니다.");
 
     private final HttpStatus httpStatus;

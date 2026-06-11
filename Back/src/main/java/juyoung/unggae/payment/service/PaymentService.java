@@ -39,6 +39,7 @@ public class PaymentService {
 
     /** 결제 준비 - orderId 생성 후 PENDING 저장 */
     public TossPrepareResponse prepare(Long userId, Long courseId) {
+        log.info("[Payment] prepare 요청: userId={}, courseId={}", userId, courseId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Course course = courseRepository.findById(courseId)
@@ -103,6 +104,7 @@ public class PaymentService {
 
     /** Mock 결제 확정 - PG 연동 없이 바로 완료 처리 (개발/테스트용) */
     public TossConfirmResponse confirmMock(Long userId, String orderId) {
+        log.info("[Payment] mock-confirm 요청: userId={}, orderId={}", userId, orderId);
         Payment payment = paymentRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PAYMENT_NOT_FOUND));
 

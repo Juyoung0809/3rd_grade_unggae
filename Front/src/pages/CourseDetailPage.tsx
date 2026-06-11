@@ -140,6 +140,10 @@ export default function CourseDetailPage() {
       navigate('/auth', { state: { from: `/courses/${courseId}` } })
       return
     }
+    if (course && Number(course.price) > 0) {
+      navigate(`/payment/${courseId}`)
+      return
+    }
     setEnrollLoading(true)
     try {
       await enroll(id)

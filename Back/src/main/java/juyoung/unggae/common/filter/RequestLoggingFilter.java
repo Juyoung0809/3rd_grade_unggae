@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-@Order(1)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestLoggingFilter implements Filter {
 
     private static final String REQUEST_ID = "requestId";

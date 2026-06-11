@@ -62,3 +62,18 @@ springdoc:
     operations-sorter: alpha
   api-docs:
     path: /v3/api-docs
+
+logging:
+  level:
+    juyoung.unggae: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%X{requestId}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{requestId}] %logger{36} - %msg%n"
+  file:
+    name: logs/unggae.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7

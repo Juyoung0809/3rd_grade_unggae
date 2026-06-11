@@ -24,6 +24,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final SecurityResponseHandler securityResponseHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -49,6 +50,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(securityResponseHandler)
+                        .accessDeniedHandler(securityResponseHandler))
                 .authorizeHttpRequests(auth -> auth
                         // 공개 인증 API
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
