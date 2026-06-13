@@ -17,6 +17,7 @@ import {
   type QuestionResponse,
 } from '../api/questions'
 import { useAuth } from '../store/AuthContext'
+import { ArrowRightIcon } from '../components/ArrowIcons'
 import NavBar from '../components/NavBar'
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -35,8 +36,31 @@ const CATEGORY_LABEL: Record<string, string> = {
   VLOG: '브이로그',
 }
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+
 function isYoutube(url: string): boolean {
   return url.includes('youtube.com') || url.includes('youtu.be')
+}
+
+function getYoutubeVideoId(url: string): string | null {
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/)
+  return m ? m[1] : null
+}
+
+function getYoutubeEmbedUrl(url: string): string | null {
+  const videoId = getYoutubeVideoId(url)
+  if (!videoId) return null
+  const origin = encodeURIComponent(window.location.origin)
+  return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${origin}&rel=0&modestbranding=1`
+}
+
+function getVideoSrc(lecture: Lecture): string {
+  if (lecture.videoType === 'UPLOAD') {
+    return lecture.videoUrl.startsWith('http')
+      ? lecture.videoUrl
+      : `${API_BASE}${lecture.videoUrl}`
+  }
+  return lecture.videoUrl
 }
 
 export default function CourseDetailPage() {
@@ -53,6 +77,7 @@ export default function CourseDetailPage() {
   const [enrollLoading, setEnrollLoading] = useState(false)
   const [error, setError] = useState('')
   const [completedLectureIds, setCompletedLectureIds] = useState<Set<number>>(new Set())
+  const [previewLecture, setPreviewLecture] = useState<Lecture | null>(null)
 
   const [ratings, setRatings] = useState<Rating[]>([])
   const [myScore, setMyScore] = useState(5)
@@ -374,6 +399,8 @@ export default function CourseDetailPage() {
               <span className="text-slate-500">|</span>
               <span className="text-slate-400">강의 {course.lectureCount}개</span>
               <span className="text-slate-500">|</span>
+              <span className="text-slate-400">수강생 {course.enrollmentCount}명</span>
+              <span className="text-slate-500">|</span>
               <span className="text-slate-400">강사: <span className="text-white font-medium">{course.instructor.name}</span></span>
             </div>
           </div>
@@ -454,13 +481,13 @@ export default function CourseDetailPage() {
                 <div className="divide-y divide-slate-50">
                   {lectures.map((lecture, index) => {
                     const isCompleted = completedLectureIds.has(lecture.id)
-                    const isLocked = !enrolled && index > 0
+                    const isLocked = !enrolled && !lecture.preview
                     return (
                       <div
                         key={lecture.id}
                         onClick={() => {
-                          if (isLocked) return
-                          if (enrolled) navigate(`/courses/${courseId}/learn?lecture=${lecture.id}`)
+                          if (enrolled) { navigate(`/courses/${courseId}/learn?lecture=${lecture.id}`); return }
+                          if (lecture.preview) setPreviewLecture(lecture)
                         }}
                         className={`flex items-center gap-4 px-6 py-4 transition-colors ${
                           isLocked
@@ -492,9 +519,9 @@ export default function CourseDetailPage() {
                           {isCompleted ? (
                             <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">완료</span>
                           ) : enrolled ? (
-                            <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full group-hover:bg-indigo-100">수강하기 →</span>
-                          ) : index === 0 ? (
-                            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">미리보기</span>
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full group-hover:bg-indigo-100">수강하기 <ArrowRightIcon className="w-3.5 h-3.5" /></span>
+                          ) : lecture.preview ? (
+                            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full group-hover:bg-emerald-100">미리보기 ▶</span>
                           ) : (
                             <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full">잠김</span>
                           )}
@@ -847,6 +874,48 @@ export default function CourseDetailPage() {
           </div>
         </div>
       </main>
+
+      {/* ── 미리보기 재생 모달 ── */}
+      {previewLecture && (
+        <div
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+          onClick={() => setPreviewLecture(null)}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-full shrink-0">미리보기</span>
+                <span className="text-sm font-bold text-slate-800 truncate">{previewLecture.title}</span>
+              </div>
+              <button onClick={() => setPreviewLecture(null)} className="text-slate-400 hover:text-slate-600 text-lg font-bold px-2 shrink-0">✕</button>
+            </div>
+            <div className="bg-black w-full relative" style={{ aspectRatio: '16/9' }}>
+              {isYoutube(previewLecture.videoUrl) ? (
+                getYoutubeEmbedUrl(previewLecture.videoUrl) ? (
+                  <iframe
+                    src={getYoutubeEmbedUrl(previewLecture.videoUrl)!}
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-white text-sm">
+                    유효하지 않은 YouTube URL입니다.
+                  </div>
+                )
+              ) : (
+                <video
+                  src={getVideoSrc(previewLecture)}
+                  controls
+                  controlsList="nodownload"
+                  autoPlay
+                  className="absolute inset-0 w-full h-full"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )

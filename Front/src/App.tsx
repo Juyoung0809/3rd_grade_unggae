@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { type ReactNode } from 'react'
 import { useAuth } from './store/AuthContext'
+import HomePage from './pages/HomePage'
 import AuthPage from './pages/AuthPage'
 import CourseListPage from './pages/CourseListPage'
 import CourseDetailPage from './pages/CourseDetailPage'
@@ -8,6 +9,8 @@ import MyEnrollmentsPage from './pages/MyEnrollmentsPage'
 import InstructorCoursesPage from './pages/InstructorCoursesPage'
 import PaymentHistoryPage from './pages/PaymentHistoryPage'
 import PaymentPage from './pages/PaymentPage'
+import PaymentSuccessPage from './pages/PaymentSuccessPage'
+import PaymentFailPage from './pages/PaymentFailPage'
 import LessonPlayerPage from './pages/LessonPlayerPage'
 import AdminPage from './pages/AdminPage'
 import ProfilePage from './pages/ProfilePage'
@@ -21,7 +24,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/courses" replace />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/courses" element={<CourseListPage />} />
         <Route path="/courses/:courseId" element={<CourseDetailPage />} />
@@ -39,6 +42,22 @@ export default function App() {
           element={
             <PrivateRoute>
               <PaymentPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/payment/success"
+          element={
+            <PrivateRoute>
+              <PaymentSuccessPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/payment/fail"
+          element={
+            <PrivateRoute>
+              <PaymentFailPage />
             </PrivateRoute>
           }
         />

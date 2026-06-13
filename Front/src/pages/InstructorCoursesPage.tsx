@@ -42,8 +42,8 @@ const STATUS_BADGE: Record<string, { label: string; className: string }> = {
 const EMPTY_FORM: CourseFormData = { title: '', description: '', category: 'YOUTUBE', price: 0, thumbnail: '' }
 
 type VideoInputType = 'URL' | 'UPLOAD'
-interface LessonForm { title: string; inputType: VideoInputType; url: string; file: File | null }
-const EMPTY_LESSON: LessonForm = { title: '', inputType: 'URL', url: '', file: null }
+interface LessonForm { title: string; inputType: VideoInputType; url: string; file: File | null; preview: boolean }
+const EMPTY_LESSON: LessonForm = { title: '', inputType: 'URL', url: '', file: null, preview: false }
 
 export default function InstructorCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -155,7 +155,7 @@ export default function InstructorCoursesPage() {
   }
   function openEditLessonForm(sectionId: number, lecture: Lecture) {
     setLessonFormSection(sectionId); setEditingLessonId(lecture.id)
-    setLessonForm({ title: lecture.title, inputType: lecture.videoType, url: lecture.videoType === 'URL' ? lecture.videoUrl : '', file: null })
+    setLessonForm({ title: lecture.title, inputType: lecture.videoType, url: lecture.videoType === 'URL' ? lecture.videoUrl : '', file: null, preview: lecture.preview })
     setLessonFormError('')
   }
 
@@ -168,15 +168,15 @@ export default function InstructorCoursesPage() {
     setLessonFormLoading(true); setLessonFormError('')
     try {
       if (editingLessonId === null) {
-        if (lessonForm.inputType === 'URL') await createLessonByUrl(lessonFormSection, { title: lessonForm.title, videoType: 'URL', videoUrl: lessonForm.url })
-        else await createLessonByUpload(lessonFormSection, lessonForm.title, lessonForm.file!)
+        if (lessonForm.inputType === 'URL') await createLessonByUrl(lessonFormSection, { title: lessonForm.title, videoType: 'URL', videoUrl: lessonForm.url, preview: lessonForm.preview })
+        else await createLessonByUpload(lessonFormSection, lessonForm.title, lessonForm.file!, lessonForm.preview)
       } else {
-        if (lessonForm.inputType === 'URL') await updateLessonByUrl(lessonFormSection, editingLessonId, { title: lessonForm.title, videoType: 'URL', videoUrl: lessonForm.url })
-        else if (lessonForm.file) await updateLessonByUpload(lessonFormSection, editingLessonId, lessonForm.title, lessonForm.file)
+        if (lessonForm.inputType === 'URL') await updateLessonByUrl(lessonFormSection, editingLessonId, { title: lessonForm.title, videoType: 'URL', videoUrl: lessonForm.url, preview: lessonForm.preview })
+        else if (lessonForm.file) await updateLessonByUpload(lessonFormSection, editingLessonId, lessonForm.title, lessonForm.file, lessonForm.preview)
         else {
           const section = sections.find(s => s.id === lessonFormSection)
           const existing = section?.lectures.find(l => l.id === editingLessonId)
-          await updateLessonByUrl(lessonFormSection, editingLessonId, { title: lessonForm.title, videoType: 'URL', videoUrl: existing?.videoUrl ?? '' })
+          await updateLessonByUrl(lessonFormSection, editingLessonId, { title: lessonForm.title, videoType: 'URL', videoUrl: existing?.videoUrl ?? '', preview: lessonForm.preview })
         }
       }
       setLessonFormSection(null); setEditingLessonId(null)
@@ -415,7 +415,12 @@ export default function InstructorCoursesPage() {
                                   {lecture.orderIndex + 1}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-slate-800 truncate">{lecture.title}</p>
+                                  <p className="text-xs font-semibold text-slate-800 truncate flex items-center gap-1.5">
+                                    {lecture.title}
+                                    {lecture.preview && (
+                                      <span className="px-1.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-600 rounded">미리보기</span>
+                                    )}
+                                  </p>
                                   <p className="text-xs text-slate-400">{lecture.videoType === 'URL' ? 'URL 링크' : '업로드'}</p>
                                 </div>
                                 <div className="flex gap-1 shrink-0">
@@ -474,6 +479,12 @@ export default function InstructorCoursesPage() {
                                     onChange={e => { const file = e.target.files?.[0] ?? null; setLessonForm(f => ({ ...f, file })) }} />
                                 </div>
                               )}
+                              <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                <input type="checkbox" checked={lessonForm.preview}
+                                  onChange={e => setLessonForm(f => ({ ...f, preview: e.target.checked }))}
+                                  className="w-4 h-4 accent-indigo-600" />
+                                미리보기 허용 (비수강생 공개)
+                              </label>
                               {lessonFormError && <p className="text-xs text-red-600">{lessonFormError}</p>}
                               <div className="flex gap-2">
                                 <button type="button" onClick={() => { setLessonFormSection(null); setEditingLessonId(null) }}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getMyEnrollments, cancelEnrollment, type Enrollment } from '../api/enrollments'
 import NavBar from '../components/NavBar'
+import { ArrowRightIcon } from '../components/ArrowIcons'
 
 export default function MyEnrollmentsPage() {
   const navigate = useNavigate()
@@ -165,8 +166,9 @@ export default function MyEnrollmentsPage() {
                   </div>
 
                   <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-indigo-600 group-hover:text-indigo-700">
-                      {enrollment.progressPercent === 100 ? '다시 수강하기 →' : enrollment.progressPercent > 0 ? '이어 학습하기 →' : '학습 시작하기 →'}
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 group-hover:text-indigo-700">
+                      {enrollment.progressPercent === 100 ? '다시 수강하기' : enrollment.progressPercent > 0 ? '이어 학습하기' : '학습 시작하기'}
+                      <ArrowRightIcon className="w-3.5 h-3.5" />
                     </span>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleCancel(enrollment.courseId) }}

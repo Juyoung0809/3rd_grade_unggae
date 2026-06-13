@@ -11,8 +11,10 @@ import {
   updateUserRole,
   getAllPayments,
   cancelPayment,
+  getAdminStats,
   type AdminUser,
   type AdminPayment,
+  type AdminStats,
 } from '../api/admin'
 import type { Course } from '../api/courses'
 
@@ -56,12 +58,17 @@ const PAYMENT_STATUS_COLOR: Record<string, string> = {
   REFUNDED: 'text-slate-500 bg-slate-100',
 }
 
-type Tab = 'courses' | 'users' | 'payments'
+type Tab = 'stats' | 'courses' | 'users' | 'payments'
 
 export default function AdminPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState<Tab>('courses')
+  const [tab, setTab] = useState<Tab>('stats')
+
+  // 통계 상태
+  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(false)
+  const [statsError, setStatsError] = useState<string | null>(null)
 
   // 강의 승인 상태
   const [courses, setCourses] = useState<Course[]>([])
@@ -86,6 +93,7 @@ export default function AdminPage() {
       navigate('/', { replace: true })
       return
     }
+    fetchStats()
     fetchPending()
   }, [user])
 
@@ -93,6 +101,18 @@ export default function AdminPage() {
     if (tab === 'users' && users.length === 0) fetchUsers()
     if (tab === 'payments' && payments.length === 0) fetchPayments()
   }, [tab])
+
+  async function fetchStats() {
+    setStatsLoading(true)
+    setStatsError(null)
+    try {
+      setStats(await getAdminStats())
+    } catch {
+      setStatsError('통계를 불러오지 못했습니다.')
+    } finally {
+      setStatsLoading(false)
+    }
+  }
 
   async function fetchPending() {
     setCoursesLoading(true)
@@ -197,6 +217,14 @@ export default function AdminPage() {
         {/* 탭 */}
         <div className="flex bg-white border border-slate-200 rounded-xl p-1 mb-8 w-fit">
           <button
+            onClick={() => setTab('stats')}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+              tab === 'stats' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            통계
+          </button>
+          <button
             onClick={() => setTab('courses')}
             className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
               tab === 'courses' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
@@ -221,6 +249,43 @@ export default function AdminPage() {
             결제 관리
           </button>
         </div>
+
+        {/* 통계 탭 */}
+        {tab === 'stats' && (
+          <>
+            <p className="text-slate-500 mb-4 text-sm">서비스의 주요 운영 현황을 한눈에 확인하세요.</p>
+            {statsLoading ? (
+              <div className="text-center py-20 text-slate-400">불러오는 중...</div>
+            ) : statsError || !stats ? (
+              <div className="text-center py-20 text-red-500">{statsError ?? '통계를 불러오지 못했습니다.'}</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                  <p className="text-sm text-slate-500 font-medium">총 회원수</p>
+                  <p className="text-3xl font-bold text-slate-800 mt-1">{stats.totalUsers.toLocaleString()}명</p>
+                  <p className="text-xs text-slate-400 mt-2">수강생 {stats.totalStudents.toLocaleString()}명 · 강사 {stats.totalInstructors.toLocaleString()}명</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                  <p className="text-sm text-slate-500 font-medium">총 강의수</p>
+                  <p className="text-3xl font-bold text-slate-800 mt-1">{stats.totalCourses.toLocaleString()}개</p>
+                  <p className="text-xs text-slate-400 mt-2">게시 중 {stats.publishedCourses.toLocaleString()}개 · 승인 대기 {stats.pendingCourses.toLocaleString()}개</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                  <p className="text-sm text-slate-500 font-medium">총 수강 건수</p>
+                  <p className="text-3xl font-bold text-slate-800 mt-1">{stats.totalEnrollments.toLocaleString()}건</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                  <p className="text-sm text-slate-500 font-medium">총 결제 건수</p>
+                  <p className="text-3xl font-bold text-slate-800 mt-1">{stats.totalPayments.toLocaleString()}건</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm sm:col-span-2 lg:col-span-1">
+                  <p className="text-sm text-slate-500 font-medium">총 매출</p>
+                  <p className="text-3xl font-bold text-indigo-600 mt-1">{Number(stats.totalRevenue).toLocaleString()}원</p>
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
         {/* 강의 승인 탭 */}
         {tab === 'courses' && (

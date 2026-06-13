@@ -5,6 +5,8 @@ import juyoung.unggae.common.response.ErrorCode;
 import juyoung.unggae.course.dto.CourseResponse;
 import juyoung.unggae.course.entity.Course;
 import juyoung.unggae.course.repository.CourseRepository;
+import juyoung.unggae.enrollment.entity.Enrollment;
+import juyoung.unggae.enrollment.repository.EnrollmentRepository;
 import juyoung.unggae.rating.repository.RatingRepository;
 import juyoung.unggae.user.entity.User;
 import juyoung.unggae.user.repository.UserRepository;
@@ -23,6 +25,7 @@ public class AdminCourseService {
     private final CourseRepository courseRepository;
     private final RatingRepository ratingRepository;
     private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     private void checkAdmin(Long userId) {
         User user = userRepository.findById(userId)
@@ -32,12 +35,16 @@ public class AdminCourseService {
         }
     }
 
+    private long getEnrollmentCount(Long courseId) {
+        return enrollmentRepository.countByCourseIdAndStatus(courseId, Enrollment.Status.ACTIVE);
+    }
+
     @Transactional(readOnly = true)
     public List<CourseResponse> getAllCourses(Long userId) {
         checkAdmin(userId);
         return courseRepository.findAllWithInstructor()
                 .stream()
-                .map(c -> CourseResponse.of(c, ratingRepository.findAverageScoreByCourseId(c.getId())))
+                .map(c -> CourseResponse.of(c, ratingRepository.findAverageScoreByCourseId(c.getId()), getEnrollmentCount(c.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -46,7 +53,7 @@ public class AdminCourseService {
         checkAdmin(userId);
         return courseRepository.findByStatus(Course.Status.PENDING)
                 .stream()
-                .map(c -> CourseResponse.of(c, ratingRepository.findAverageScoreByCourseId(c.getId())))
+                .map(c -> CourseResponse.of(c, ratingRepository.findAverageScoreByCourseId(c.getId()), getEnrollmentCount(c.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -55,7 +62,7 @@ public class AdminCourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
         course.approve();
-        return CourseResponse.of(course, ratingRepository.findAverageScoreByCourseId(courseId));
+        return CourseResponse.of(course, ratingRepository.findAverageScoreByCourseId(courseId), getEnrollmentCount(courseId));
     }
 
     public CourseResponse rejectCourse(Long userId, Long courseId) {
@@ -63,6 +70,6 @@ public class AdminCourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
         course.reject();
-        return CourseResponse.of(course, ratingRepository.findAverageScoreByCourseId(courseId));
+        return CourseResponse.of(course, ratingRepository.findAverageScoreByCourseId(courseId), getEnrollmentCount(courseId));
     }
 }

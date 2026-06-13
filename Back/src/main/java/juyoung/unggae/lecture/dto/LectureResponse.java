@@ -12,6 +12,7 @@ public class LectureResponse {
     private final int orderIndex;
     private final String videoType;
     private final String videoUrl;
+    private final boolean preview;
 
     private LectureResponse(Lecture lecture) {
         this.id = lecture.getId();
@@ -20,6 +21,7 @@ public class LectureResponse {
         this.orderIndex = lecture.getOrderIndex();
         this.videoType = lecture.getVideoType().name();
         this.videoUrl = lecture.getVideoUrl();
+        this.preview = lecture.isPreview();
     }
 
     public static LectureResponse from(Lecture lecture) {

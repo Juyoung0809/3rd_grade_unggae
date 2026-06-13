@@ -24,6 +24,18 @@ export interface AdminPayment {
   status: string
 }
 
+export interface AdminStats {
+  totalUsers: number
+  totalStudents: number
+  totalInstructors: number
+  totalCourses: number
+  publishedCourses: number
+  pendingCourses: number
+  totalEnrollments: number
+  totalPayments: number
+  totalRevenue: number
+}
+
 export const getAllCourses = (): Promise<Course[]> =>
   api.get('/api/admin/courses')
 
@@ -50,3 +62,6 @@ export const getAllPayments = (): Promise<AdminPayment[]> =>
 
 export const cancelPayment = (paymentId: number): Promise<AdminPayment> =>
   api.post(`/api/admin/payments/${paymentId}/cancel`)
+
+export const getAdminStats = (): Promise<AdminStats> =>
+  api.get('/api/admin/stats')

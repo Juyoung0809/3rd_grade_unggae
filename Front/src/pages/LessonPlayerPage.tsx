@@ -4,33 +4,9 @@ import { getCourseDetail, type Course } from '../api/courses'
 import { getEnrollmentDetail, completeLecture, getCompletedLectureIds } from '../api/enrollments'
 import { getLectures, type Lecture } from '../api/lectures'
 import { useAuth } from '../store/AuthContext'
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
-
-function isYoutube(url: string) {
-  return url.includes('youtube.com') || url.includes('youtu.be')
-}
-
-function getYoutubeVideoId(url: string): string | null {
-  const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/)
-  return m ? m[1] : null
-}
-
-function getYoutubeEmbedUrl(url: string): string | null {
-  const videoId = getYoutubeVideoId(url)
-  if (!videoId) return null
-  const origin = encodeURIComponent(window.location.origin)
-  return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${origin}&rel=0&modestbranding=1`
-}
-
-function getVideoSrc(lecture: Lecture): string {
-  if (lecture.videoType === 'UPLOAD') {
-    return lecture.videoUrl.startsWith('http')
-      ? lecture.videoUrl
-      : `${API_BASE}${lecture.videoUrl}`
-  }
-  return lecture.videoUrl
-}
+import { ArrowLeftIcon, ArrowRightIcon } from '../components/ArrowIcons'
+import CourseVideoPlayer from '../components/CourseVideoPlayer'
+import { isYoutube } from '../utils/video'
 
 export default function LessonPlayerPage() {
   const { courseId } = useParams<{ courseId: string }>()
@@ -107,28 +83,6 @@ export default function LessonPlayerPage() {
     }
   }
 
-  // ── YouTube postMessage 이벤트 수신 (video ended 감지) ──
-  useEffect(() => {
-    if (!activeLecture || !isYoutube(activeLecture.videoUrl)) return
-    const capturedId = activeLecture.id
-
-    const handler = (event: MessageEvent) => {
-      if (event.origin !== 'https://www.youtube.com') return
-      try {
-        const data = JSON.parse(typeof event.data === 'string' ? event.data : '')
-        const isEnded =
-          // IFrame API 이벤트 형식
-          (data.event === 'onStateChange' && data.info === 0) ||
-          // infoDelivery 형식
-          (data.event === 'infoDelivery' && data.info?.playerState === 0)
-        if (isEnded) handleVideoEndedRef.current(capturedId)
-      } catch {}
-    }
-
-    window.addEventListener('message', handler)
-    return () => window.removeEventListener('message', handler)
-  }, [activeLecture?.id])
-
   // ── 강의 전환 ──
   const switchLecture = useCallback((lecture: Lecture) => {
     setActiveLecture(lecture)
@@ -150,9 +104,7 @@ export default function LessonPlayerPage() {
   )
   if (!course || !activeLecture) return null
 
-  const isYT = isYoutube(activeLecture.videoUrl)
   const isDone = completedIds.has(activeLecture.id)
-  const embedUrl = isYT ? getYoutubeEmbedUrl(activeLecture.videoUrl) : null
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -164,7 +116,7 @@ export default function LessonPlayerPage() {
             onClick={() => navigate(`/courses/${courseId}`)}
             className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 transition-colors font-medium shrink-0"
           >
-            ← 강의 소개
+            <ArrowLeftIcon className="w-4 h-4" /> 강의 소개
           </button>
           <span className="text-slate-300 hidden sm:block">|</span>
           <span className="text-slate-800 text-sm font-semibold truncate hidden sm:block">{course.title}</span>
@@ -197,30 +149,12 @@ export default function LessonPlayerPage() {
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
 
           {/* 비디오 플레이어 */}
-          <div className="bg-black w-full relative" style={{ aspectRatio: '16/9' }}>
-            {isYT && embedUrl ? (
-              <iframe
-                key={activeLecture.id}
-                src={embedUrl}
-                className="absolute inset-0 w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : isYT && !embedUrl ? (
-              <div className="absolute inset-0 flex items-center justify-center text-white text-sm">
-                유효하지 않은 YouTube URL입니다.
-              </div>
-            ) : (
-              <video
-                key={activeLecture.id}
-                src={getVideoSrc(activeLecture)}
-                controls
-                controlsList="nodownload"
-                className="absolute inset-0 w-full h-full"
-                onEnded={() => handleVideoEndedRef.current(activeLecture.id)}
-              />
-            )}
-          </div>
+          <CourseVideoPlayer
+            key={activeLecture.id}
+            lecture={activeLecture}
+            completed={isDone}
+            onEnded={() => handleVideoEndedRef.current(activeLecture.id)}
+          />
 
           {/* 강의 제목 + 이전/다음 */}
           <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between gap-4 shadow-sm">
@@ -232,16 +166,16 @@ export default function LessonPlayerPage() {
               <button
                 onClick={() => prevLecture && switchLecture(prevLecture)}
                 disabled={!prevLecture}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-30 text-slate-600 text-sm font-semibold rounded-xl transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-30 text-slate-600 text-sm font-semibold rounded-xl transition-colors"
               >
-                ← 이전
+                <ArrowLeftIcon className="w-4 h-4" /> 이전
               </button>
               <button
                 onClick={() => nextLecture && switchLecture(nextLecture)}
                 disabled={!nextLecture}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-30 text-white text-sm font-semibold rounded-xl transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-30 text-white text-sm font-semibold rounded-xl transition-colors"
               >
-                다음 →
+                다음 <ArrowRightIcon className="w-4 h-4" />
               </button>
             </div>
           </div>

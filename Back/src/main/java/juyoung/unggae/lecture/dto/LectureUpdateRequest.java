@@ -17,4 +17,6 @@ public class LectureUpdateRequest {
 
     @NotBlank
     private String videoUrl;
+
+    private boolean preview;
 }

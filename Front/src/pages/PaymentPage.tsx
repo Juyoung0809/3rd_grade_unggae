@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { preparePayment, confirmMockPayment } from '../api/payments'
+import { preparePayment } from '../api/payments'
 import { getCourseDetail, type Course } from '../api/courses'
+import { ArrowLeftIcon } from '../components/ArrowIcons'
 
 interface PaymentMethod {
   id: string
@@ -45,6 +46,15 @@ const CARD_COMPANIES: CardCompany[] = [
 
 const TERMS = ['전자금융거래 기본약관', '개인정보 수집 및 이용 동의', '개인정보 제공 안내']
 
+const TOSS_METHOD_MAP: Record<string, TossPaymentMethod> = {
+  kakaopay: '카카오페이',
+  tosspay: '토스페이',
+  naverpay: '네이버페이',
+  card: '카드',
+  transfer: '계좌이체',
+  phone: '휴대폰',
+}
+
 export default function PaymentPage() {
   const { courseId } = useParams<{ courseId: string }>()
   const navigate = useNavigate()
@@ -73,13 +83,21 @@ export default function PaymentPage() {
 
     try {
       const prep = await preparePayment(Number(courseId))
-      const result = await confirmMockPayment(prep.orderId)
-      navigate(`/courses/${result.courseId}`, { replace: true })
+      const tossPayments = window.TossPayments(import.meta.env.VITE_TOSS_CLIENT_KEY)
+      const origin = window.location.origin
+
+      await tossPayments.requestPayment(TOSS_METHOD_MAP[selectedMethod], {
+        amount: Number(prep.amount),
+        orderId: prep.orderId,
+        orderName: prep.orderName,
+        customerName: prep.customerName,
+        successUrl: `${origin}/payment/success?courseId=${courseId}`,
+        failUrl: `${origin}/payment/fail?courseId=${courseId}`,
+      })
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })
-        ?.response?.data?.message
+      const msg = (err as { response?: { data?: { message?: string } }; message?: string })
+        ?.response?.data?.message ?? (err as { message?: string })?.message
       setError(msg || '결제 중 오류가 발생했습니다.')
-    } finally {
       setPaying(false)
     }
   }
@@ -112,8 +130,8 @@ export default function PaymentPage() {
       {/* 헤더 */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-5 py-4 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">
-            ←
+          <button onClick={() => navigate(-1)} className="text-slate-400 hover:text-slate-600">
+            <ArrowLeftIcon className="w-5 h-5" />
           </button>
           <h1 className="text-lg font-bold text-slate-900">주문/결제</h1>
         </div>

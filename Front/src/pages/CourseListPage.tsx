@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getCourses, type Course } from '../api/courses'
 import { getEnrolledCourseIds } from '../api/enrollments'
 import { useAuth } from '../store/AuthContext'
 import NavBar from '../components/NavBar'
+import { ArrowLeftIcon, ArrowRightIcon } from '../components/ArrowIcons'
 
 const CATEGORIES = [
   '전체',
@@ -40,15 +41,24 @@ const CATEGORY_LABEL: Record<string, string> = {
 export default function CourseListPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+
+  const PAGE_SIZE = 12
 
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('전체')
+  const [selectedCategory, setSelectedCategory] = useState(() => {
+    const initial = searchParams.get('category')
+    return initial && CATEGORIES.includes(initial) ? initial : '전체'
+  })
   const [keyword, setKeyword] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [sort, setSort] = useState<'LATEST' | 'RATING' | 'STUDENTS'>('LATEST')
   const [enrolledIds, setEnrolledIds] = useState<Set<number>>(new Set())
+  const [page, setPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
 
   useEffect(() => {
     async function fetchCourses() {
@@ -59,8 +69,12 @@ export default function CourseListPage() {
           category: selectedCategory === '전체' ? undefined : selectedCategory,
           keyword: keyword || undefined,
           sort,
+          page,
+          size: PAGE_SIZE,
         })
-        setCourses(data)
+        setCourses(data.content)
+        setTotalPages(data.totalPages)
+        setTotalElements(data.totalElements)
       } catch {
         setError('강의 목록을 불러오지 못했습니다.')
       } finally {
@@ -68,7 +82,7 @@ export default function CourseListPage() {
       }
     }
     fetchCourses()
-  }, [selectedCategory, keyword, sort])
+  }, [selectedCategory, keyword, sort, page])
 
   useEffect(() => {
     if (!user) return
@@ -80,6 +94,13 @@ export default function CourseListPage() {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     setKeyword(searchInput.trim())
+    setPage(0)
+  }
+
+  function resetSearch() {
+    setKeyword('')
+    setSearchInput('')
+    setPage(0)
   }
 
   const searchBar = (
@@ -97,7 +118,7 @@ export default function CourseListPage() {
         검색
       </button>
       {keyword && (
-        <button type="button" onClick={() => { setKeyword(''); setSearchInput('') }}
+        <button type="button" onClick={resetSearch}
           className="px-3 py-2 border border-slate-200 text-slate-500 text-sm rounded-lg hover:bg-slate-100 transition-colors">
           ✕
         </button>
@@ -152,7 +173,7 @@ export default function CourseListPage() {
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => { setSelectedCategory(cat); setPage(0) }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 selectedCategory === cat
                   ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
@@ -168,10 +189,10 @@ export default function CourseListPage() {
         {keyword && (
           <div className="flex items-center justify-between mb-5 py-3 px-4 bg-indigo-50 rounded-xl border border-indigo-100">
             <p className="text-sm text-indigo-700 font-medium">
-              "<span className="font-bold">{keyword}</span>" 검색 결과 {!loading && `— ${courses.length}개`}
+              "<span className="font-bold">{keyword}</span>" 검색 결과 {!loading && `— ${totalElements}개`}
             </p>
             <button
-              onClick={() => { setKeyword(''); setSearchInput('') }}
+              onClick={resetSearch}
               className="text-xs text-indigo-500 hover:text-indigo-700 font-medium"
             >
               검색 초기화 ✕
@@ -216,7 +237,7 @@ export default function CourseListPage() {
             <p className="text-slate-400 text-sm mb-6">다른 키워드로 검색해 보세요</p>
             {keyword && (
               <button
-                onClick={() => { setKeyword(''); setSearchInput('') }}
+                onClick={resetSearch}
                 className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors"
               >
                 전체 강의 보기
@@ -231,14 +252,14 @@ export default function CourseListPage() {
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               {!keyword && (
                 <p className="text-sm text-slate-500">
-                  총 <span className="font-semibold text-slate-800">{courses.length}개</span>의 강의
+                  총 <span className="font-semibold text-slate-800">{totalElements}개</span>의 강의
                 </p>
               )}
               <div className="flex bg-white border border-slate-200 rounded-xl p-0.5 ml-auto">
                 {([['LATEST', '최신순'], ['RATING', '평점순'], ['STUDENTS', '수강생순']] as const).map(([val, label]) => (
                   <button
                     key={val}
-                    onClick={() => setSort(val)}
+                    onClick={() => { setSort(val); setPage(0) }}
                     className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       sort === val ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
                     }`}
@@ -301,9 +322,12 @@ export default function CourseListPage() {
 
                       {/* 하단 */}
                       <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                        <div className="flex items-center gap-1">
-                          <span className="text-amber-400 text-sm">★</span>
-                          <span className="text-xs font-bold text-slate-700">{course.averageRating.toFixed(1)}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center gap-1">
+                            <span className="text-amber-400 text-sm">★</span>
+                            <span className="text-xs font-bold text-slate-700">{course.averageRating.toFixed(1)}</span>
+                          </span>
+                          <span className="text-xs text-slate-400">수강생 {course.enrollmentCount}명</span>
                         </div>
                         <span className={`text-sm font-extrabold ${course.price === 0 ? 'text-emerald-600' : 'text-slate-900'}`}>
                           {course.price === 0 ? '무료' : `${Number(course.price).toLocaleString()}원`}
@@ -314,6 +338,39 @@ export default function CourseListPage() {
                 )
               })}
             </div>
+
+            {/* 페이지네이션 */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-1.5 mt-8">
+                <button
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ArrowLeftIcon className="w-4 h-4" /> 이전
+                </button>
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i)}
+                    className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors ${
+                      page === i
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-slate-500 hover:bg-white'
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                  className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  다음 <ArrowRightIcon className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </>
         )}
       </main>

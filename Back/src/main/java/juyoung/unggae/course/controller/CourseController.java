@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import juyoung.unggae.common.response.ApiResponse;
+import juyoung.unggae.common.response.PageResponse;
 import juyoung.unggae.course.dto.CourseCreateRequest;
 import juyoung.unggae.course.dto.CourseResponse;
 import juyoung.unggae.course.dto.CourseUpdateRequest;
@@ -14,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "Course", description = "강의 API")
 @RestController
@@ -30,12 +29,14 @@ public class CourseController {
             description = "PUBLISHED 상태의 강의 목록을 반환합니다. sort: LATEST(최신순) | RATING(평점순) | STUDENTS(수강생순)"
     )
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CourseResponse>>> getCourses(
+    public ResponseEntity<ApiResponse<PageResponse<CourseResponse>>> getCourses(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false, defaultValue = "LATEST") String sort) {
-        List<CourseResponse> responses = courseService.getCourses(category, keyword, sort);
-        return ResponseEntity.ok(ApiResponse.success(responses));
+            @RequestParam(required = false, defaultValue = "LATEST") String sort,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "12") int size) {
+        PageResponse<CourseResponse> response = courseService.getCourses(category, keyword, sort, page, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @Operation(summary = "강의 상세 조회")

@@ -38,10 +38,15 @@ public class Lecture {
     @Column(name = "video_url", nullable = false, length = 1000)
     private String videoUrl;
 
-    public void update(String title, VideoType videoType, String videoUrl) {
+    @Column(name = "is_preview", nullable = false)
+    @Builder.Default
+    private boolean preview = false;
+
+    public void update(String title, VideoType videoType, String videoUrl, boolean preview) {
         this.title = title;
         this.videoType = videoType;
         this.videoUrl = videoUrl;
+        this.preview = preview;
     }
 
     public void updateSection(Section section) {

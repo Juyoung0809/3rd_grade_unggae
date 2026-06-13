@@ -6,6 +6,7 @@ export default function PaymentFailPage() {
 
   const errorCode    = searchParams.get('code') || ''
   const errorMessage = searchParams.get('message') || '결제가 취소되었습니다.'
+  const courseId     = searchParams.get('courseId')
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
@@ -18,7 +19,7 @@ export default function PaymentFailPage() {
         )}
         <div className="space-y-3">
           <button
-            onClick={() => navigate(-2)}
+            onClick={() => navigate(courseId ? `/payment/${courseId}` : '/courses')}
             className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition"
           >
             다시 시도하기

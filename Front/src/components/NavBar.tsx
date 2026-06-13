@@ -34,7 +34,7 @@ export default function NavBar({ centerSlot }: NavBarProps) {
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center gap-3">
         {/* ── 로고 ── */}
         <button
-          onClick={() => navigate('/courses')}
+          onClick={() => navigate('/')}
           className="font-extrabold text-xl tracking-tight text-indigo-600 hover:text-indigo-700 transition-colors shrink-0 mr-2"
         >
           Edit<span className="text-slate-800">Hub</span>
@@ -42,7 +42,7 @@ export default function NavBar({ centerSlot }: NavBarProps) {
 
         {/* ── 데스크톱 왼쪽 네비 ── */}
         <nav className="hidden md:flex items-center gap-1">
-          <button onClick={() => navigate('/courses')} className={linkCls('/courses')}>
+          <button onClick={() => navigate('/')} className={linkCls('/')}>
             홈
           </button>
           {user && (
@@ -130,8 +130,8 @@ export default function NavBar({ centerSlot }: NavBarProps) {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1">
           <button
-            onClick={() => { navigate('/courses'); setMobileMenuOpen(false) }}
-            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive('/courses') ? 'text-indigo-600 bg-indigo-50' : 'text-slate-700 hover:bg-slate-100'}`}
+            onClick={() => { navigate('/'); setMobileMenuOpen(false) }}
+            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive('/') ? 'text-indigo-600 bg-indigo-50' : 'text-slate-700 hover:bg-slate-100'}`}
           >
             홈
           </button>

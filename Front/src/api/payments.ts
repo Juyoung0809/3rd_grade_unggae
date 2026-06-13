@@ -36,3 +36,6 @@ export const preparePayment = (courseId: number): Promise<PrepareResponse> =>
 
 export const confirmMockPayment = (orderId: string): Promise<ConfirmResponse> =>
   api.post('/api/payments/mock-confirm', { orderId })
+
+export const confirmTossPayment = (data: { paymentKey: string; orderId: string; amount: number }): Promise<ConfirmResponse> =>
+  api.post('/api/payments/toss/confirm', data)

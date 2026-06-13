@@ -34,4 +34,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("SELECT c FROM Course c JOIN FETCH c.instructor ORDER BY c.createdAt DESC")
     List<Course> findAllWithInstructor();
+
+    long countByStatus(Course.Status status);
 }

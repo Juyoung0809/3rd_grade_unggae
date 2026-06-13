@@ -57,6 +57,7 @@ public class LectureService {
                 .orderIndex(nextOrder)
                 .videoType(Lecture.VideoType.valueOf(request.getVideoType()))
                 .videoUrl(request.getVideoUrl())
+                .preview(request.isPreview())
                 .build();
 
         LectureResponse response = LectureResponse.from(lectureRepository.save(lecture));
@@ -65,7 +66,7 @@ public class LectureService {
     }
 
     /** 파일 업로드로 강의 추가 */
-    public LectureResponse createLectureByUpload(Long instructorId, Long courseId, String title, MultipartFile file) {
+    public LectureResponse createLectureByUpload(Long instructorId, Long courseId, String title, MultipartFile file, boolean preview) {
         Course course = getCourseOwnedBy(courseId, instructorId);
         String videoUrl = saveFile(file);
         int nextOrder = lectureRepository.countByCourseId(courseId);
@@ -76,6 +77,7 @@ public class LectureService {
                 .orderIndex(nextOrder)
                 .videoType(Lecture.VideoType.UPLOAD)
                 .videoUrl(videoUrl)
+                .preview(preview)
                 .build();
 
         LectureResponse response = LectureResponse.from(lectureRepository.save(lecture));
@@ -86,15 +88,15 @@ public class LectureService {
     /** 강의 수정 (URL) */
     public LectureResponse updateLectureByUrl(Long instructorId, Long lectureId, LectureUpdateRequest request) {
         Lecture lecture = getLectureOwnedBy(lectureId, instructorId);
-        lecture.update(request.getTitle(), Lecture.VideoType.valueOf(request.getVideoType()), request.getVideoUrl());
+        lecture.update(request.getTitle(), Lecture.VideoType.valueOf(request.getVideoType()), request.getVideoUrl(), request.isPreview());
         return LectureResponse.from(lecture);
     }
 
     /** 강의 수정 (파일 재업로드) */
-    public LectureResponse updateLectureByUpload(Long instructorId, Long lectureId, String title, MultipartFile file) {
+    public LectureResponse updateLectureByUpload(Long instructorId, Long lectureId, String title, MultipartFile file, boolean preview) {
         Lecture lecture = getLectureOwnedBy(lectureId, instructorId);
         String videoUrl = saveFile(file);
-        lecture.update(title, Lecture.VideoType.UPLOAD, videoUrl);
+        lecture.update(title, Lecture.VideoType.UPLOAD, videoUrl, preview);
         return LectureResponse.from(lecture);
     }
 
@@ -128,6 +130,7 @@ public class LectureService {
                 .orderIndex(nextOrder)
                 .videoType(Lecture.VideoType.valueOf(request.getVideoType()))
                 .videoUrl(request.getVideoUrl())
+                .preview(request.isPreview())
                 .build();
 
         LectureResponse response = LectureResponse.from(lectureRepository.save(lecture));
@@ -136,7 +139,7 @@ public class LectureService {
     }
 
     /** 섹션에 강의 추가 (파일 업로드) */
-    public LectureResponse createSectionLectureByUpload(Long instructorId, Long sectionId, String title, MultipartFile file) {
+    public LectureResponse createSectionLectureByUpload(Long instructorId, Long sectionId, String title, MultipartFile file, boolean preview) {
         Section section = getSectionOwnedBy(sectionId, instructorId);
         String videoUrl = saveFile(file);
         int nextOrder = lectureRepository.countBySectionId(sectionId);
@@ -148,6 +151,7 @@ public class LectureService {
                 .orderIndex(nextOrder)
                 .videoType(Lecture.VideoType.UPLOAD)
                 .videoUrl(videoUrl)
+                .preview(preview)
                 .build();
 
         LectureResponse response = LectureResponse.from(lectureRepository.save(lecture));

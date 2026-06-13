@@ -2,11 +2,14 @@ package juyoung.unggae.course.service;
 
 import juyoung.unggae.common.exception.CustomException;
 import juyoung.unggae.common.response.ErrorCode;
+import juyoung.unggae.common.response.PageResponse;
 import juyoung.unggae.course.dto.CourseCreateRequest;
 import juyoung.unggae.course.dto.CourseResponse;
 import juyoung.unggae.course.dto.CourseUpdateRequest;
 import juyoung.unggae.course.entity.Course;
 import juyoung.unggae.course.repository.CourseRepository;
+import juyoung.unggae.enrollment.entity.Enrollment;
+import juyoung.unggae.enrollment.repository.EnrollmentRepository;
 import juyoung.unggae.rating.repository.RatingRepository;
 import juyoung.unggae.user.entity.User;
 import juyoung.unggae.user.repository.UserRepository;
@@ -25,33 +28,45 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final RatingRepository ratingRepository;
     private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
+
+    private long getEnrollmentCount(Long courseId) {
+        return enrollmentRepository.countByCourseIdAndStatus(courseId, Enrollment.Status.ACTIVE);
+    }
 
     public CourseResponse getCourseDetail(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
         double avg = ratingRepository.findAverageScoreByCourseId(courseId);
-        return CourseResponse.of(course, avg);
+        return CourseResponse.of(course, avg, getEnrollmentCount(courseId));
     }
 
-    public List<CourseResponse> getCourses(String category, String keyword, String sort) {
+    public PageResponse<CourseResponse> getCourses(String category, String keyword, String sort, int page, int size) {
         List<Course> courses = courseRepository.findPublishedCourses(
                 category != null ? category.toUpperCase() : null,
                 keyword
         );
         List<CourseResponse> responses = courses.stream()
-                .map(c -> CourseResponse.of(c, ratingRepository.findAverageScoreByCourseId(c.getId())))
+                .map(c -> CourseResponse.of(
+                        c,
+                        ratingRepository.findAverageScoreByCourseId(c.getId()),
+                        getEnrollmentCount(c.getId())))
                 .collect(Collectors.toList());
 
         if ("RATING".equalsIgnoreCase(sort)) {
             responses.sort((a, b) -> Double.compare(b.getAverageRating(), a.getAverageRating()));
         } else if ("STUDENTS".equalsIgnoreCase(sort)) {
-            responses.sort((a, b) -> Integer.compare(b.getLectureCount(), a.getLectureCount()));
+            responses.sort((a, b) -> Long.compare(b.getEnrollmentCount(), a.getEnrollmentCount()));
         }
-        return responses;
-    }
 
-    public List<CourseResponse> getCourses(String category, String keyword) {
-        return getCourses(category, keyword, "LATEST");
+        int safePage = Math.max(page, 0);
+        int safeSize = size <= 0 ? 12 : size;
+        int totalElements = responses.size();
+        int fromIndex = Math.min(safePage * safeSize, totalElements);
+        int toIndex = Math.min(fromIndex + safeSize, totalElements);
+        List<CourseResponse> content = responses.subList(fromIndex, toIndex);
+
+        return PageResponse.of(content, safePage, safeSize, totalElements);
     }
 
     @Transactional
@@ -73,7 +88,7 @@ public class CourseService {
                 .lectureCount(0)
                 .build();
 
-        return CourseResponse.of(courseRepository.save(course), 0.0);
+        return CourseResponse.of(courseRepository.save(course), 0.0, 0L);
     }
 
     public List<CourseResponse> getInstructorCourses(Long userId) {
@@ -86,7 +101,10 @@ public class CourseService {
 
         return courseRepository.findByInstructorIdExcludingDeleted(userId)
                 .stream()
-                .map(c -> CourseResponse.of(c, ratingRepository.findAverageScoreByCourseId(c.getId())))
+                .map(c -> CourseResponse.of(
+                        c,
+                        ratingRepository.findAverageScoreByCourseId(c.getId()),
+                        getEnrollmentCount(c.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -112,7 +130,7 @@ public class CourseService {
         );
 
         double avg = ratingRepository.findAverageScoreByCourseId(courseId);
-        return CourseResponse.of(course, avg);
+        return CourseResponse.of(course, avg, getEnrollmentCount(courseId));
     }
 
     @Transactional

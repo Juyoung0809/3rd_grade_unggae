@@ -17,6 +17,7 @@ public class CourseResponse {
     private final String thumbnailUrl;
     private final double averageRating;
     private final int lectureCount;
+    private final long enrollmentCount;
     private final InstructorInfo instructor;
 
     @Getter
@@ -30,7 +31,7 @@ public class CourseResponse {
         }
     }
 
-    private CourseResponse(Course course, double averageRating) {
+    private CourseResponse(Course course, double averageRating, long enrollmentCount) {
         this.id = course.getId();
         this.title = course.getTitle();
         this.description = course.getDescription();
@@ -40,13 +41,14 @@ public class CourseResponse {
         this.thumbnailUrl = course.getThumbnail();
         this.averageRating = averageRating;
         this.lectureCount = course.getLectureCount();
+        this.enrollmentCount = enrollmentCount;
         this.instructor = new InstructorInfo(
                 course.getInstructor().getId(),
                 course.getInstructor().getNickname()
         );
     }
 
-    public static CourseResponse of(Course course, double averageRating) {
-        return new CourseResponse(course, averageRating);
+    public static CourseResponse of(Course course, double averageRating, long enrollmentCount) {
+        return new CourseResponse(course, averageRating, enrollmentCount);
     }
 }

@@ -26,14 +26,15 @@ export const reorderSections = (courseId: number, orderedIds: number[]): Promise
 // 섹션 내 레슨 관리
 export const createLessonByUrl = (
   sectionId: number,
-  data: { title: string; videoType: 'URL'; videoUrl: string }
+  data: { title: string; videoType: 'URL'; videoUrl: string; preview?: boolean }
 ): Promise<Lecture> =>
   api.post(`/api/sections/${sectionId}/lessons/url`, data)
 
-export const createLessonByUpload = (sectionId: number, title: string, file: File): Promise<Lecture> => {
+export const createLessonByUpload = (sectionId: number, title: string, file: File, preview?: boolean): Promise<Lecture> => {
   const form = new FormData()
   form.append('title', title)
   form.append('file', file)
+  form.append('preview', String(!!preview))
   return api.post(`/api/sections/${sectionId}/lessons/upload`, form, {
     headers: { 'Content-Type': undefined },
   })
@@ -42,14 +43,15 @@ export const createLessonByUpload = (sectionId: number, title: string, file: Fil
 export const updateLessonByUrl = (
   sectionId: number,
   lectureId: number,
-  data: { title: string; videoType: 'URL'; videoUrl: string }
+  data: { title: string; videoType: 'URL'; videoUrl: string; preview?: boolean }
 ): Promise<Lecture> =>
   api.put(`/api/sections/${sectionId}/lessons/${lectureId}/url`, data)
 
-export const updateLessonByUpload = (sectionId: number, lectureId: number, title: string, file: File): Promise<Lecture> => {
+export const updateLessonByUpload = (sectionId: number, lectureId: number, title: string, file: File, preview?: boolean): Promise<Lecture> => {
   const form = new FormData()
   form.append('title', title)
   form.append('file', file)
+  form.append('preview', String(!!preview))
   return api.put(`/api/sections/${sectionId}/lessons/${lectureId}/upload`, form, {
     headers: { 'Content-Type': undefined },
   })

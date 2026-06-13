@@ -9,6 +9,7 @@ export interface Course {
   thumbnailUrl: string | null
   averageRating: number
   lectureCount: number
+  enrollmentCount: number
   status: string
   instructor: {
     id: number
@@ -16,8 +17,21 @@ export interface Course {
   }
 }
 
-export const getCourses = (params?: { category?: string; keyword?: string; sort?: string }): Promise<Course[]> =>
-  api.get('/api/courses', { params })
+export interface PageResponse<T> {
+  content: T[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
+export const getCourses = (params?: {
+  category?: string
+  keyword?: string
+  sort?: string
+  page?: number
+  size?: number
+}): Promise<PageResponse<Course>> => api.get('/api/courses', { params })
 
 export const getCourseDetail = (courseId: number): Promise<Course> =>
   api.get(`/api/courses/${courseId}`)

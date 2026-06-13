@@ -49,8 +49,9 @@ public class InstructorLectureController {
             @AuthenticationPrincipal Long userId,
             @PathVariable Long courseId,
             @RequestParam String title,
-            @RequestParam MultipartFile file) {
-        LectureResponse response = lectureService.createLectureByUpload(userId, courseId, title, file);
+            @RequestParam MultipartFile file,
+            @RequestParam(required = false, defaultValue = "false") boolean preview) {
+        LectureResponse response = lectureService.createLectureByUpload(userId, courseId, title, file, preview);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("챕터가 추가됐습니다.", response));
     }
 
@@ -72,8 +73,9 @@ public class InstructorLectureController {
             @PathVariable Long courseId,
             @PathVariable Long lectureId,
             @RequestParam String title,
-            @RequestParam MultipartFile file) {
-        LectureResponse response = lectureService.updateLectureByUpload(userId, lectureId, title, file);
+            @RequestParam MultipartFile file,
+            @RequestParam(required = false, defaultValue = "false") boolean preview) {
+        LectureResponse response = lectureService.updateLectureByUpload(userId, lectureId, title, file, preview);
         return ResponseEntity.ok(ApiResponse.success("챕터가 수정됐습니다.", response));
     }
 
